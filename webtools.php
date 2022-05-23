@@ -811,7 +811,7 @@
                         <div class="mt-1 text-white"><b>Current Dir:</b> <?= @getcwd(); ?></div>
                         <div class="mt-1 text-white"><b>Exec Info:</b> <?= $webTools->is_shell_exec_available() ? '<span class="badge badge-success bg-success">Enabled</span>' : '<span class="badge badge-success bg-success">Disabled</span>'; ?></div>
                         <div class="mt-1 text-white"><b>PHP Info:</b> 
-                            <a href="<?= $webTools->baseLink; ?>?page=phpinfo" target="_blank">Open</a>
+                            <a href="<?= $webTools->baseLink; ?>?page=phpinfo">Open</a>
                         </div>
                         <div class="mt-1 text-white"><b>PHP Ini Path:</b> <?= php_ini_loaded_file(); ?> | <a href="<?= $webTools->baseLink; ?>?page=download&file=<?= php_ini_loaded_file(); ?>" target="_blank">Download</a>
                         </div>
@@ -934,7 +934,61 @@
                     </div>
                     
                 </div>
-                
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <a href="<?=  $webTools->baseLink; ?>?page=phpinfo" class="tools-link">
+                            <div class="card tools-item bg-prim">
+                                <div class="card-body text-white">
+                                    <div class="row">
+                                        <div class="col-3 my-auto mx-auto">
+                                            <i class="fa-brands fa-php text-white tools-icon"></i>
+                                        </div>
+                                        <div class="col-9 my-auto mx-auto">
+                                            <div class="tools-name">PHP Info</div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+
+                <?php } elseif($webTools->pageActive() == 'phpinfo'){ ?>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-header">
+                                <h4>PHP INFO</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-body">
+                                
+                                <?php 
+
+                                    $webTools->addCssGlobal('
+                                        h1, h2 {color: #fff !important;} 
+                                        table, tr, td, th {background-color: var(--primary-color) !important; color: white !important;
+                                        box-shadow: 0px 0px 0px 0px transparent !important; font-size: var(--body-text-content-font-size) !important; padding: 8px !important; 
+                                        }
+                                        th { background-color: black !important;}
+                                    ');
+                                    @phpinfo(); 
+                                    
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <?php } elseif($webTools->pageActive() == 'terminal'){ ?>
 
@@ -1333,20 +1387,7 @@
 
             // php info feature
             $pageShow = $webTools->pageActive();
-            if($pageShow == 'phpinfo'){
-
-                $webTools->loadMetaLink();
-                $webTools->addCssGlobal('
-                    h1, h2 {color: #fff !important;} 
-                    table, tr, td, th {background-color: var(--primary-color) !important; color: white !important;
-                    box-shadow: 0px 0px 0px 0px transparent !important; font-size: var(--body-text-content-font-size) !important; padding: 8px !important; 
-                    }
-                    th { background-color: black !important;}
-                ');
-                @phpinfo();
-                $webTools->goHome();
-
-            } elseif ($pageShow == 'download'){
+            if ($pageShow == 'download'){
                 if(isset($_GET['file']) && trim($_GET['file']) !== ''){
                     $downloadFile = $webTools->download(trim($_GET['file']));
                     if ($downloadFile) {
