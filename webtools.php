@@ -3,8 +3,9 @@
     /* 
         - CREATE BY FORDEVELOPERTOOLS WEB DEVELOPER TEAM
         - AUTHOR: NUR SHODIK ASSALAM
-        - VERSION  1.0 BETA
+        - VERSION  1.2 BETA
         - RELEASE 5-20-2022
+        - UPDATE 5-24-2022
     */
 
     // started First
@@ -18,6 +19,7 @@
         public $authPass = 'root!';
         public $loadImage = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/loading.gif';
         public $malwareCheckPayload = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/listing_malware_payload.txt';
+
         public $dirLoc = __DIR__;
         public $fileLoc = __FILE__;
         public $baseLink = './webtools.php';
@@ -161,6 +163,59 @@
             }else{
                 return $returnType == null ? null : '0';
             }
+        }
+
+        public function filePermInfo($pathLoc = null){
+            $perms = fileperms(trim($pathLoc));
+
+            switch ($perms & 0xF000) {
+                case 0xC000: // socket
+                    $info = 's';
+                    break;
+                case 0xA000: // symbolic link
+                    $info = 'l';
+                    break;
+                case 0x8000: // regular
+                    $info = 'r';
+                    break;
+                case 0x6000: // block special
+                    $info = 'b';
+                    break;
+                case 0x4000: // directory
+                    $info = 'd';
+                    break;
+                case 0x2000: // character special
+                    $info = 'c';
+                    break;
+                case 0x1000: // FIFO pipe
+                    $info = 'p';
+                    break;
+                default: // unknown
+                    $info = 'u';
+            }
+
+            // Owner
+            $info .= (($perms & 0x0100) ? 'r' : '-');
+            $info .= (($perms & 0x0080) ? 'w' : '-');
+            $info .= (($perms & 0x0040) ?
+                        (($perms & 0x0800) ? 's' : 'x' ) :
+                        (($perms & 0x0800) ? 'S' : '-'));
+
+            // Group
+            $info .= (($perms & 0x0020) ? 'r' : '-');
+            $info .= (($perms & 0x0010) ? 'w' : '-');
+            $info .= (($perms & 0x0008) ?
+                        (($perms & 0x0400) ? 's' : 'x' ) :
+                        (($perms & 0x0400) ? 'S' : '-'));
+
+            // World
+            $info .= (($perms & 0x0004) ? 'r' : '-');
+            $info .= (($perms & 0x0002) ? 'w' : '-');
+            $info .= (($perms & 0x0001) ?
+                        (($perms & 0x0200) ? 't' : 'x' ) :
+                        (($perms & 0x0200) ? 'T' : '-'));
+
+            return $info;
         }
 
         public function varClean($vartoClean = null){
@@ -351,7 +406,7 @@
                         background: var(--secondary-color) !important;
                         font-size: var(--body-text-content-font-size) !important;
                     }
-
+                    
                     '. $addCss .'
 
                 </style>
@@ -456,6 +511,275 @@
                 // print_r($results);
             }else{
                 return false;
+            }
+        }
+
+        function ff_delete($pathLoc = null){
+            $pathLoc = trim($pathLoc);
+            if (trim($pathLoc) !== '') {
+                if(is_dir(trim($pathLoc))){
+
+                    $dir = $pathLoc;
+                
+                    if (is_dir($dir)) {
+                        
+                        $rii = new RecursiveIteratorIterator(
+                            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+                            RecursiveIteratorIterator::CHILD_FIRST);
+                        $openDir = @scandir($dir);
+                        $items = array(); 
+
+                        if (count($openDir) > 2) {
+
+                            foreach ($rii as $file) {
+                                $pathItem = $file->getPathname();
+                                if ($file->isDir()){
+
+                                    if (substr($pathItem, -1) !== "." && substr($pathItem, -2) !== "..") {
+                                    
+                                        // remove directories
+                                        $removeDir = @rmdir($pathItem);
+                                        if($removeDir){ 
+                                            $items[] = [
+                                                'item_delete'   =>  $pathItem,
+                                                'item_type'     =>  'directory',
+                                                'status'        =>  'success'
+                                            ];
+                                        } else{
+                                            $items[] = [
+                                                'item_delete'   =>  $pathItem,
+                                                'item_type'     =>  'directory',
+                                                'status'        =>  'failed'
+                                            ];
+                                        }
+                                    }
+
+                                    continue;
+    
+                                }else{
+    
+                                    // remove files
+                                    $deleteFile = @unlink($pathItem);
+
+                                    if($deleteFile){ 
+                                        $items[] = [
+                                            'item_delete'   =>  $pathItem,
+                                            'item_type'     =>  'file',
+                                            'status'        =>  'success'
+                                        ];
+
+                                    }else{
+                                        $items[] = [
+                                            'item_delete'   =>  $pathItem,
+                                            'item_type'     =>  'file',
+                                            'status'        =>  'failed'
+                                        ];
+                                    }
+                                }
+                            }
+
+                            // remove directories
+                            $removeDir = @rmdir($dir);
+                            if($removeDir){
+
+                                $items[] = [
+                                    'item_delete'   =>  $dir,
+                                    'item_type'     =>  'directory',
+                                    'status'        =>  'success'
+                                ];
+
+                            }else{
+
+                                $items[] = [
+                                    'item_delete'   =>  $dir,
+                                    'item_type'     =>  'directory',
+                                    'status'        =>  'failed'
+                                ];
+                            }
+
+
+                            
+    
+                            return $items;
+                            
+                        } else {
+                            // remove directories
+                            $removeDir = @rmdir($dir);
+                            if($removeDir){
+
+                                $items[] = [
+                                    'item_delete'   =>  $dir,
+                                    'item_type'     =>  'directory',
+                                    'status'        =>  'success'
+                                ];
+
+                                return $items;
+
+                            }else{
+
+                                return false;
+                            }
+                            
+                        }
+
+                    } else {
+                        return false;
+                    }
+                    
+                }else{
+
+                    // remove file
+                    if (file_exists($pathLoc)) {
+                        $items = [];
+                        $deleteFile = @unlink($pathLoc);
+                        if ($deleteFile) {
+                            $items[] = [
+                                'item_delete'   =>  $pathLoc,
+                                'item_type'     =>  'file',
+                                'status'        =>  'success'
+                            ];
+
+                            return $items;
+                        } else {
+                            return false;
+                        }
+                        
+                    } else {
+                        return false;
+                    }
+                }
+            } else {
+                return false;
+            }
+            
+        }
+
+        public function zipManager($dirForZip = null, $fileNameZip = null, $saveTo = null, $zipAction = null){
+
+            if ($zipAction !== null && $zipAction == 'zip' && 
+                is_dir(trim($saveTo)) && trim($fileNameZip) !== '' && 
+                is_dir(trim($dirForZip))
+            ) {
+
+                // set variable
+                $folder_to_zip = trim($dirForZip);
+                $save_to = trim($saveTo);
+                $file_name_zip = trim($fileNameZip);
+                $dataZip = [];
+                $total_item = 0;
+
+                if(is_dir($folder_to_zip)){
+
+                    // Get real path for our folder
+                    $rootPath = realpath($folder_to_zip);
+
+                    // Initialize archive object
+                    $zip = new ZipArchive();
+                    $zip->open($save_to .''. $file_name_zip, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+                    // Create recursive directory iterator
+                    /** @var SplFileInfo[] $files */
+                    $files = new RecursiveIteratorIterator(
+                        new RecursiveDirectoryIterator($rootPath),
+                        RecursiveIteratorIterator::LEAVES_ONLY
+                    );
+
+                    foreach ($files as $name => $file)
+                    {
+                        // Skip directories (they would be added automatically)
+                        if (!$file->isDir())
+                        {
+                            // Get real and relative path for current file
+                            $filePath = $file->getRealPath();
+                            $relativePath = substr($filePath, strlen($rootPath) + 1);
+
+                            // Add current file to archive
+                            $zip->addFile($filePath, $relativePath);
+                            $total_item++;
+                        }
+                    }
+
+                    $zip->close();
+
+                    $dataZip = [
+                        'filename'      =>  trim($file_name_zip),
+                        'file_path'     =>  trim($save_to) .''. trim($file_name_zip),
+                        'save_path'     =>  trim($save_to),
+                        'zipped_path'   =>  trim($folder_to_zip),
+                        'total_item'    =>  $total_item,
+                        'file_size'     =>  filesize(trim($save_to) .''. trim($file_name_zip))
+                    ];
+
+                    return $dataZip;
+
+                } else {
+                    return false;
+                }
+                
+            } elseif($zipAction !== null && $zipAction == 'unzip' && 
+                is_dir(trim($saveTo)) && trim($fileNameZip) !== '' && 
+                is_dir(trim($dirForZip))
+            ) {
+
+                // statement
+                return false;
+                
+            }else{
+                return false;
+            }
+            
+        }
+
+        public function listDir($setDir = null){
+
+            $setDir = $setDir;
+            $listItemDir = [];
+            if(is_dir(trim($setDir)) && trim($setDir) !== ''){
+
+
+                $openDir = opendir($setDir);
+                while ($getdirItem = readdir($openDir)) {
+                    $itemPath = $setDir . DIRECTORY_SEPARATOR . $getdirItem;
+                    $itemName = $getdirItem;
+                    $listItemDir[] = [
+                        'item_name'     =>  $itemName,
+                        'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
+                        'item_path'     =>  $itemPath,
+                        'item_mime'     =>  @mime_content_type($itemPath),
+                        'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
+                        'item_size'     =>  @filesize($itemPath) 
+                    ];
+                }
+
+                return $listItemDir;
+
+            }else{
+                return false;
+            }
+        }
+
+        public function mime_icon_set($mime_type){
+
+            //echo $mime_type;
+            if(strpos(trim($mime_type), 'directory') !== false) {
+                return '<i class="fa-solid fa-folder icon-ff-list"></i>';
+            }elseif(strpos(trim($mime_type), 'image') !== false){
+                return '<i class="fa-solid fa-image icon-ff-list"></i>';
+            }elseif(strpos(trim($mime_type), 'text/plain') !== false){
+                return '<i class="fa-solid fa-file-lines icon-ff-list"></i>';
+            }elseif(strpos(trim($mime_type), 'text/x-php') !== false){
+                return '<i class="fa-brands fa-php icon-ff-list"></i>';
+            }elseif(strpos(trim($mime_type), 'text/javascript') !== false){
+                return '<i class="fa-brands fa-javascript icon-ff-list"></i>';
+            }elseif(strpos(trim($mime_type), 'text/css') !== false){
+                return '<i class="fa-brands fa-css icon-ff-list"></i>';
+            }elseif(strpos(trim($mime_type), 'text/x-py') !== false){
+                return '<i class="fa-brands fa-python icon-ff-list"></i>';
+            }elseif(strpos(trim($mime_type), 'zip') !== false || strpos(trim($mime_type), 'rar') !== false){
+                return '<i class="fa-solid fa-file-zipper icon-ff-list"></i>';
+            }
+            else{
+                return '<i class="fa-solid fa-file-circle-question icon-ff-list"></i>';
             }
         }
 
@@ -696,6 +1020,26 @@
             cursor: pointer;
         }
 
+        .text-danger {
+            color: red;
+        }
+        .icon-ff-list {
+            padding: 6px;
+        }
+
+        .badge{
+            cursor: pointer;
+            user-select: none !important;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .height-max {
+            max-height: 300px;
+        }
+
     </style>
 </head>
 <body>
@@ -893,7 +1237,7 @@
                                             <i class="fa-solid fa-folder-closed text-white tools-icon"></i>
                                         </div>
                                         <div class="col-9 my-auto mx-auto">
-                                            <div class="tools-name">File Manager (Coming Soon)</div>
+                                            <div class="tools-name">File Manager</div>
                                         </div>
                                     </div>
                                 </div>
@@ -906,10 +1250,10 @@
                                 <div class="card-body text-white">
                                     <div class="row">
                                         <div class="col-3 my-auto mx-auto">
-                                            <i class="fa-solid fa-file-zipper text-white tools-icon"></i>
+                                            <i class="fa-solid fa-heading text-white tools-icon"></i>
                                         </div>
                                         <div class="col-9 my-auto mx-auto">
-                                            <div class="tools-name">Zip Manager (Coming Soon)</div>
+                                            <div class="tools-name">Find Text (Coming Soon)</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1009,7 +1353,7 @@
                                 <div class="row">
                                     <div class="col-md-9">
                                         <div>
-                                            <strong><?= $webTools->is_shell_exec_available() ? 'ACTIVE': 'DISABLED BY SYSTEM'; ?></strong>
+                                            <strong><?= $webTools->is_shell_exec_available() ? 'ACTIVE': '<div class="text-danger">DISABLED BY SYSTEM</div>'; ?></strong>
                                             <div>
                                                 <?= $_SERVER['COMSPEC']; ?>
                                             </div>
@@ -1102,6 +1446,62 @@
                     </div>
                 </div>
 
+
+                <?php } elseif($webTools->pageActive() == 'file-manager'){ ?>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-header">
+                                <h4>FILE MANAGER</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-header">
+                                
+                                <div class="row">
+                                    <div class="col-md-9">
+
+                                    </div>
+                                    <div class="col-md-3 text-right">
+                                        <button type="button" id="clearFileMgr" onclick="removeLogFileMgrAct('#file-mgr-log-act');" class="btn bg-primary text-white">
+                                            Clear Log Action
+                                        </button>
+                                        <button type="button" id="clearFileMgr" onclick="setLoadFileMgr();" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="separator-sec"></div>
+
+                                <form id="file-mgr-input" action="" method="post">
+                                    <div class="input-group mb-3 bg-transparent">
+                                        <input type="text" class="form-control" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <div class="input-group-append">
+                                            <button id="submitFileMgr" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-body box-file-mgr-act height-max scroll-active">
+                                <div id="file-mgr-log-act">No Action.</div>
+                                <div class="separator-sec"></div>
+                            </div>
+                            <div class="card-footer fixed-full-height scroll-active box-file-mgr">
+                                <div id="file-mgr-log"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <?php } else{ /*something*/ } ?>
             </div>
             <!-- end body content -->
@@ -1113,6 +1513,31 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+
+    function copy_text(containerid) {
+        var range = document.createRange();
+        range.selectNode(containerid); //changed here
+        window.getSelection().removeAllRanges(); 
+        window.getSelection().addRange(range); 
+        document.execCommand("copy");
+        window.getSelection().removeAllRanges();
+        alert('copied.');
+    }
+
+    // function copy_text(containerid) {
+    //     if (document.selection) {
+    //         var range = document.body.createTextRange();
+    //         range.moveToElementText(document.getElementById(containerid));
+    //         range.select().createTextRange();
+    //         document.execCommand("copy");
+    //     } else if (window.getSelection) {
+    //         var range = document.createRange();
+    //         range.selectNode(document.getElementById(containerid));
+    //         window.getSelection().addRange(range);
+    //         document.execCommand("copy");
+    //         alert("Text has been copied.");
+    //     }
+    // }
 
     function removeElem(elem = null){
         if (elem == null) {
@@ -1219,6 +1644,170 @@
 
         return false;   
     });
+
+    // for action restricted access
+    <?php if($webTools->pageActive() == 'file-manager'){ ?>
+
+    function removeLogFileMgrAct(elemId = null){
+        removeElem(elemId);
+        $('.box-file-mgr-act').prepend('<div id="file-mgr-log-act">No Action.</div>');
+    }
+
+    function removeLogFileMgr(elemId = null){
+        removeElem(elemId);
+        $('.box-file-mgr').prepend('<div id="file-mgr-log"></div>');
+    }
+
+    function setLoadFileMgr(){
+        var scanDirMgr = $('#scan_dir_mgr').val();
+        
+        $('#submitFileMgr').attr("disabled", true);
+
+        $('#file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingLogFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></center></div>');
+
+        $.ajax({
+            type: 'POST',
+            url: "<?= $webTools->baseLink; ?>?page=file-manager-load",
+            dataType: 'html',
+            cache: false, 
+            data: {
+                scan_dir_mgr: scanDirMgr
+            },
+            success: function(data){
+                removeLogFileMgr('#file-mgr-log');
+                removeElem('.loadingLogFileMgr');
+                removeVal('#command');
+                $('#submitFileMgr').attr("disabled", false);
+                $('#file-mgr-log').prepend('<div class="box-msg">'+ data +'</div>'); 
+            
+            },
+            error: function (e) {
+                removeLogFileMgr('#file-mgr-log');
+                removeElem('.loadingLogFileMgr');
+                $('#submitFileMgr').attr("disabled", false);
+                $('#file-mgr-log').prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+            }
+        });
+    }
+
+    function loadMgrByItem(dataSet = null){
+        setValueTo('#scan_dir_mgr', dataSet);
+        setLoadFileMgr();
+    }
+
+    function zip_file_mgr(ListMgrDel = null, delItem = null){
+
+        delItem = atob(delItem);
+        $('#file-mgr-log-act').prepend('<div class="box-msg d-block"><center><div class="loadingLogFileMgrAct"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Zipping ['+ delItem +'], Loading...</div></center></div>');
+
+        $.ajax({
+            type: 'POST',
+            url: "<?= $webTools->baseLink; ?>?page=zipper",
+            dataType: 'html',
+            cache: false, 
+            data: {
+                delete_item: delItem
+            },
+            success: function(data){
+                //removeLogFileMgr('#file-mgr-log-act');
+                removeElem('.loadingLogFileMgrAct');
+                $('#submitFileMgrAct').attr("disabled", false);
+                $('#file-mgr-log-act').prepend('<div class="box-msg">'+ data +'</div>'); 
+                setLoadFileMgr();
+            
+            },
+            error: function (e) {
+                //removeLogFileMgr('#file-mgr-log-act');
+                removeElem('.loadingLogFileMgrAct');
+                $('#submitFileMgrAct').attr("disabled", false);
+                $('#file-mgr-log-act').prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                setLoadFileMgr();
+            }
+        });
+
+    }
+
+    function delete_file_mgr(ListMgrDel = null, delItem = null){
+        var confirmDel = confirm('are you sure you want to delete this item ['+atob(delItem)+'] ? If true, the item will be permanently deleted.');
+        if(confirmDel){
+
+            delItem = atob(delItem);
+            $('#file-mgr-log-act').prepend('<div class="box-msg d-block"><center><div class="loadingLogFileMgrAct"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Deleting ['+ delItem +'], Loading...</div></center></div>');
+
+            $.ajax({
+                type: 'POST',
+                url: "<?= $webTools->baseLink; ?>?page=ff-delete",
+                dataType: 'html',
+                cache: false, 
+                data: {
+                    delete_item: delItem
+                },
+                success: function(data){
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingLogFileMgrAct');
+                    $('#submitFileMgrAct').attr("disabled", false);
+                    $('#file-mgr-log-act').prepend('<div class="box-msg">'+ data +'</div>'); 
+                    setLoadFileMgr();
+                
+                },
+                error: function (e) {
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingLogFileMgrAct');
+                    $('#submitFileMgrAct').attr("disabled", false);
+                    $('#file-mgr-log-act').prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                    setLoadFileMgr();
+                }
+            });
+
+        }else{
+            // something statement
+            return false;
+        }
+
+    }
+    
+    $( document ).ready(function() {
+
+        function autoStartFileMgr(){
+
+            var scan_dir_mgr = $('#scan_dir_mgr').val();
+
+            $('#file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingLogFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></center></div>');
+
+            $.ajax({
+                type: 'POST',
+                url: "<?= $webTools->baseLink; ?>?page=file-manager-load",
+                dataType: 'html',
+                cache: false, 
+                data: {
+                    scan_dir_mgr: scan_dir_mgr
+                },
+                success: function(data){
+                    removeElem('.loadingLogFileMgr');
+                    $('#file-mgr-log').prepend('<div class="box-msg">'+ data +'</div>'); 
+            
+                },
+                error: function (e) {
+                    removeElem('.loadingLogFileMgr');
+                    $('#file-mgr-log').prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                }
+            });
+        }
+
+        autoStartFileMgr();
+
+        $("#file-mgr-input").submit( function () {
+            setLoadFileMgr();
+            return false;   
+        });
+
+        
+
+    });
+
+    <?php } else {
+        // statement
+    } ?>
 
 </script>
 </body>
@@ -1500,6 +2089,155 @@
                 // echo "</div>";
                 
             }
+
+            elseif($pageShow == 'file-manager-load'){
+
+                $dirScanMgr = trim($_POST['scan_dir_mgr']);
+                
+                //listDir
+                echo "<div id='". time() ."' class='set-list-file-manager'>";
+                echo "
+                    <div class='badge badge-warning badge-custom-notice-term'>[". date('H:i d-m-Y') ."]</div>
+                ";
+                $getDirScan = $webTools->listDir($dirScanMgr);
+                if ($getDirScan) {
+                    $xCounter = 1;
+                    foreach ($getDirScan as $keyItem => $valueItem) {
+
+                        echo '<span id="item_name_'. $xCounter .'" style="width: 0px !important; height: 0px !important; font-size: 0px;">'. $valueItem['item_path'] .'</span>';
+                        
+                        if ($valueItem['item_type'] == 'directory') {
+
+                            echo '<div class="list-item-file-mgr list-item-dir" style="border-bottom: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;" id="list-item-mgr_'. $xCounter .'">
+                            <div class="row">
+                            <div class="col-md-6">
+                            <div class="cursor-pointer" onclick="loadMgrByItem(\''. base64_encode($valueItem['item_path']) .'\');">
+                            '. $webTools->mime_icon_set($valueItem['item_mime']) .'
+                            '. $valueItem['item_name'];
+                            
+                            echo '
+                            </div>
+                            </div>
+                            <div class="col-md-2">Directory</div>
+                            <div class="col-md-2">
+                            '. $webTools->filePermInfo(trim($valueItem['item_path'])) .'
+                            </div>
+                            <div class="col-md-2">
+                            '. number_format(($valueItem['item_size'] / 1024) / 1024, 2) .'MB
+                            </div>
+                            </div>
+                                <div class="list-item-file-mgr-act">
+                            ';
+                            
+                            // skip dots
+                            if (substr($valueItem['item_path'], -1) !== "." && substr($valueItem['item_path'], -2) !== "..") {
+
+                                echo'<span class="badge badge-success" onclick="zip_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Zip Arcive</span>
+                                 | 
+                                <span class="badge badge-danger" onclick="delete_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Delete</span> | 
+                                ';
+                            }
+
+                            echo'<span class="badge badge-info" onclick="copy_text(item_name_'. $xCounter .');">Copy Path</span>
+                            </div>
+                            ';
+
+                            echo '
+                            </div>
+                            </div>';
+                        } else {
+                            echo '<div class="list-item-file-mgr list-item-file" style="border-bottom: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;" id="list-item-mgr_'. $xCounter .'">
+                            <div class="row">
+                            <div class="col-md-6">
+                            <div class="cursor-pointer">
+                            '. $webTools->mime_icon_set($valueItem['item_mime']) .'
+                            '. $valueItem['item_name'];
+                            
+                            echo '
+                            </div>
+                            </div>
+                            <div class="col-md-2">File</div>
+                            <div class="col-md-2">
+                            '. $webTools->filePermInfo(trim($valueItem['item_path'])) .'
+                            </div>
+                            <div class="col-md-2">
+                            '. number_format(($valueItem['item_size'] / 1024) / 1024, 2) .'MB
+                            </div>
+                            </div>
+                                <div class="list-item-file-mgr-act">
+                                    <a href="'. $webTools->baseLink .'?page=download&file='. $valueItem['item_path'] .'" target="_blank">
+                                        <span class="badge badge-success">Download</span>
+                                    </a>
+                                     | 
+                                     <a href="'. $webTools->baseLink .'?page=text-editor&file='. $valueItem['item_path'] .'" target="_blank">
+                                        <span class="badge badge-primary">Open</span>
+                                     </a>
+                                     | 
+                                    <span class="badge badge-danger" onclick="delete_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Delete</span>
+                                    
+                                    | 
+                                    <a href="./'. $valueItem['item_path'] .'" target="_blank">
+                                        <span class="badge badge-warning">Show</span>
+                                    </a>
+                                    | 
+                                    <span class="badge badge-info" onclick="copy_text(item_name_'. $xCounter .');">Copy Path</span>
+                                </div>
+                            ';
+
+                            echo '
+                            </div>
+                            </div>';
+                        }
+
+                        $xCounter++;
+                    }
+                }else{
+                    echo "<div><div class='badge badge-danger'>Results 0 or Failed.</div></div>";
+                }
+                echo "</div>";
+            }
+
+            elseif($pageShow == 'ff-delete'){
+                $deleteFF = trim($_POST['delete_item']);
+                $deletingItem = $webTools->ff_delete($deleteFF);
+                echo "<div id='". time() ."' class='set-list-file-manager'>";
+                echo "
+                    <div class='badge badge-warning badge-custom-notice-term'>[Delete] ". date('H:i d-m-Y') ."</div>
+                ";
+                if ($deletingItem) {
+
+                    echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>Delete [$deleteFF] Success.</div>";
+                    
+                } else {
+                    echo "<div style='color: red; border-left: 2px dotted grey; padding-left: 10px;'>Delete  [$deleteFF] Failed.</div>";
+                }
+
+                echo "</div>";
+                
+            }
+
+            elseif($pageShow == 'zipper'){
+            
+                $zipDir = trim($_POST['delete_item']);
+                $fileName = basename($zipDir);
+                $zippingItem = $webTools->zipManager($zipDir, $fileName .'.zip', $zipDir, 'zip');
+                
+                echo "<div id='". time() ."' class='set-list-file-manager'>";
+                echo "
+                    <div class='badge badge-warning badge-custom-notice-term'>[Zip] ". date('H:i d-m-Y') ."</div>
+                ";
+                if ($zippingItem) {
+
+                    echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>Zipping [$zipDir] Success.</div>";
+                    
+                } else {
+                    echo "<div style='color: red; border-left: 2px dotted grey; padding-left: 10px;'>Zipping  [$zipDir] Failed.</div>";
+                }
+
+                echo "</div>";
+
+
+            }
             
             else {
                 dashboardPage($webTools);
@@ -1508,7 +2246,6 @@
         }else{
             loginPage($webTools);
         }
-
     }
 
 ?>
