@@ -792,6 +792,54 @@
             }
             
         }
+
+        public function streamFile($file = null){
+            if (trim($file) !== '') {
+                if (file_exists($file)) {
+                    $getContentFile = file_get_contents($file);
+                    return $getContentFile;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }   
+        }
+
+        public function saveFile($file = null, $mode = null, $fileContent = null){
+            if (trim($file) !== '' && trim($mode) !== '') {
+                if (file_exists($file)) {
+                    $fileOpen = fopen($file, $mode);
+                    fwrite($fileOpen, $fileContent);
+                    fclose($fileOpen);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        public function createFile($file = null, $mode = null, $fileContent = null){
+            if (trim($file) !== '' && trim($mode) !== '') {
+                if (!file_exists($file)) {
+                    $fileOpen = fopen($file, $mode);
+                    if ($fileOpen) {
+                        fwrite($fileOpen, $fileContent);
+                        fclose($fileOpen);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+            
+        }
     }
 
     // ins system
@@ -810,6 +858,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WEB TOOLS</title>
     <?= $webTools->loadMetaLink(); ?>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rainbow-code@2.1.7/themes/css/paraiso-dark.css" integrity="sha256-tIDos/4CvlyYUH34vy98sohTuDvmUTlu2ZsZMD4x9EU=" crossorigin="anonymous"> -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rainbow-code@2.1.7/themes/css/all-hallows-eve.css" integrity="sha256-dI4/9VdeYvon9cJ6+EyeVpJraFk1ucyDKI3pPx2CkOI=" crossorigin="anonymous"> -->
+    
+    <?php if($webTools->pageActive() == 'text-editor'){ ?>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.dracula.min.css" integrity="sha256-x08qZTgWks4/JUCMKhc1k8HSSt6R+cmaHy8sGT0/g7c=" crossorigin="anonymous"> -->
+    <?php } else {
+        // something
+    }
+    ?>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200;300;400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css?family=Bungee:wght@100;200;300;400;500;600;700;800');
@@ -1038,6 +1095,22 @@
 
         .height-max {
             max-height: 300px;
+        }
+
+        .full-width {
+            min-width: 100%;
+        } 
+
+        #textEditor {
+            background: var(--primary-color);
+            color: white;
+            width: 100%;
+            border: 2px solid var(--secondary-color);
+            font-size: var(--body-text-header-font-size);
+        }
+
+        .min-max-height {
+            max-height: 150px !important;
         }
 
     </style>
@@ -1281,6 +1354,22 @@
 
                 <div class="row">
                     <div class="col-md-4">
+                        <a href="<?=  $webTools->baseLink; ?>?page=text-editor" class="tools-link">
+                            <div class="card tools-item bg-prim">
+                                <div class="card-body text-white">
+                                    <div class="row">
+                                        <div class="col-3 my-auto mx-auto">
+                                            <i class="fa-solid fa-file-pen text-white tools-icon"></i>
+                                        </div>
+                                        <div class="col-9 my-auto mx-auto">
+                                            <div class="tools-name">Text Editor</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
                         <a href="<?=  $webTools->baseLink; ?>?page=phpinfo" class="tools-link">
                             <div class="card tools-item bg-prim">
                                 <div class="card-body text-white">
@@ -1290,7 +1379,6 @@
                                         </div>
                                         <div class="col-9 my-auto mx-auto">
                                             <div class="tools-name">PHP Info</div>
-                                            
                                         </div>
                                     </div>
                                 </div>
@@ -1491,12 +1579,70 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="card-body box-file-mgr-act height-max scroll-active">
+                            <div class="card-body box-file-mgr-act min-max-max scroll-active">
                                 <div id="file-mgr-log-act">No Action.</div>
                                 <div class="separator-sec"></div>
                             </div>
                             <div class="card-footer fixed-full-height scroll-active box-file-mgr">
                                 <div id="file-mgr-log"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php } elseif($webTools->pageActive() == 'text-editor'){ ?>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-header">
+                                <h4>TEXT EDITOR</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-header">
+                                
+                                <div class="row">
+                                    <div class="col-md-3">
+
+                                    </div>
+                                    <div class="col-md-9 text-right">
+                                        <button type="button" id="refreshTextEditor" onclick="autoStartTextEditor();" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                        </button>
+                                        <button type="button" id="clearTextEditor" onclick="removeLogTextEditor('#text-editor-log');" class="btn bg-primary text-white">
+                                            Clear Log Action
+                                        </button>
+                                        <button type="button" id="saveTextEditor" onclick="saveTextEditor();" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-floppy-disk"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="separator-sec"></div>
+
+                                <form id="text-editor-input" action="" method="post">
+                                    <div class="input-group mb-3 bg-transparent">
+                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <div class="input-group-append">
+                                            <button id="submitTextEditor" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-body box-text-editor min-max-height scroll-active">
+                                <div id="text-editor-log">No Action.</div>
+                                <div class="separator-sec"></div>
+                            </div>
+                            <div class="card-footer">
+                                <textarea name="" id="textEditor"class="fixed-full-height scroll-active"></textarea>
                             </div>
                         </div>
                     </div>
@@ -1511,7 +1657,27 @@
         <?= $webTools->goHome(); ?>
     </div>
 
+<?php if($webTools->pageActive() == 'text-editor'){ ?>
+
+    <!-- <script src="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.min.js" integrity="sha256-uiBN8K9ataH6h7YZDL0Bx/x4UsS5I4n20nejkGvAY1k=" crossorigin="anonymous"></script> -->
+    <script>
+        // - highlight all pre + code tags (CSS3 selectors)
+        // - use javascript as default language
+        // - use theme "enlighter" as default theme
+        // - replace tabs with 2 spaces
+        // EnlighterJS.init('textarea#textEditor', 'code', {
+        //         language : 'javascript',
+        //         theme: 'dracula',
+        //         indent : 2
+        // });
+    </script>
+
+<?php } else {
+    // something
+} ?>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 <script>
 
     function copy_text(containerid) {
@@ -1803,6 +1969,149 @@
 
         
 
+    });
+
+    <?php } elseif($webTools->pageActive() == 'text-editor'){ ?>
+
+    // setLoadTextEditor
+    // textEditor
+    function removeLogTextEditor(elemId = null){
+        removeElem(elemId);
+        $('.box-text-editor').prepend('<div id="text-editor-log">No Action.</div>');
+    }
+
+    function autoStartTextEditor(){
+
+        var textEditorArea = $('#textEditor').val();
+        var fileLoc = $('#file_loc').val();
+
+        $('#submitTextEditor').attr("disabled", true);
+        $('#refreshTextEditor').attr("disabled", true);
+        $('#saveTextEditor').attr("disabled", true);
+
+        $('#text-editor-log').prepend('<div class="box-msg d-block"><center><div class="loadingLogTextEditor"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></center></div>');
+
+        $.ajax({
+            type: 'POST',
+            url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=open",
+            dataType: 'html',
+            cache: false, 
+            data: {
+                file_loc: fileLoc,
+                text_editor: textEditorArea
+            },
+            success: function(data){
+                $('#submitTextEditor').attr("disabled", false);
+                $('#refreshTextEditor').attr("disabled", false);
+                $('#saveTextEditor').attr("disabled", false);
+                var dataSet = JSON.parse(data);
+                removeElem('.loadingLogTextEditor');
+                $('#textEditor').val(""+dataSet[0].content+"");
+                $('#text-editor-log').prepend('<div class="box-msg">'+ dataSet[0].action +'</div>'); 
+        
+            },
+            error: function (e) {
+                $('#submitTextEditor').attr("disabled", false);
+                $('#refreshTextEditor').attr("disabled", false);
+                $('#saveTextEditor').attr("disabled", false);
+                removeElem('.loadingLogTextEditor');
+                $('#text-editor-log').prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+            }
+        });
+    }
+
+    // text-editor-input
+    // submitTextEditor
+
+    function saveTextEditor(){
+        $('#submitTextEditor').attr("disabled", true);
+        $('#refreshTextEditor').attr("disabled", true);
+        $('#saveTextEditor').attr("disabled", true);
+
+        var textEditorArea = $('#textEditor').val();
+        var fileLoc = $('#file_loc').val();
+
+        $('#text-editor-log').prepend('<div class="box-msg d-block"><center><div class="loadingLogTextEditor"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></center></div>');
+
+        $.ajax({
+            type: 'POST',
+            url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=save",
+            dataType: 'html',
+            cache: false, 
+            data: {
+                file_loc: fileLoc,
+                text_editor: textEditorArea
+            },
+            success: function(data){
+                $('#submitTextEditor').attr("disabled", false);
+                $('#refreshTextEditor').attr("disabled", false);
+                $('#saveTextEditor').attr("disabled", false);
+                var dataSet = JSON.parse(data);
+                removeElem('.loadingLogTextEditor');
+                //$('#textEditor').val(""+dataSet[0].content+"");
+                $('#text-editor-log').prepend('<div class="box-msg">'+ dataSet[0].action +'</div>'); 
+            },
+            error: function (e) {
+                $('#submitTextEditor').attr("disabled", false);
+                $('#refreshTextEditor').attr("disabled", false);
+                $('#saveTextEditor').attr("disabled", false);
+                removeElem('.loadingLogTextEditor');
+                $('#text-editor-log').prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+            }
+        });
+
+        return false;   
+    }
+
+    $("#text-editor-input").submit( function () {
+        
+        $('#submitTextEditor').attr("disabled", true);
+        $('#refreshTextEditor').attr("disabled", true);
+        $('#saveTextEditor').attr("disabled", true);
+
+        var textEditorArea = $('#textEditor').val();
+        var fileLoc = $('#file_loc').val();
+
+        $('#text-editor-log').prepend('<div class="box-msg d-block"><center><div class="loadingLogTextEditor"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></center></div>');
+
+        $.ajax({
+            type: 'POST',
+            url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=open",
+            dataType: 'html',
+            cache: false, 
+            data: {
+                file_loc: fileLoc,
+                text_editor: textEditorArea
+            },
+            success: function(data){
+                $('#submitTextEditor').attr("disabled", false);
+                $('#refreshTextEditor').attr("disabled", false);
+                $('#saveTextEditor').attr("disabled", false);
+                var dataSet = JSON.parse(data);
+                removeElem('.loadingLogTextEditor');
+                $('#textEditor').val(""+dataSet[0].content+"");
+                $('#text-editor-log').prepend('<div class="box-msg">'+ dataSet[0].action +'</div>'); 
+            },
+            error: function (e) {
+                $('#submitTextEditor').attr("disabled", false);
+                $('#refreshTextEditor').attr("disabled", false);
+                $('#saveTextEditor').attr("disabled", false);
+                removeElem('.loadingLogTextEditor');
+                $('#text-editor-log').prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+            }
+        });
+
+        return false;   
+    });
+
+    $( document ).ready(function() {
+
+        autoStartTextEditor();
+
+        $("#text-editor-submit").submit( function () {
+            //setLoadFileMgr();
+            return false;   
+        });
     });
 
     <?php } else {
@@ -2237,8 +2546,85 @@
                 echo "</div>";
 
 
+            } elseif($pageShow == 'text-editor-act'){
+
+                $action = trim($_GET['action']);
+                $file_loc = trim($_POST['file_loc']);
+
+                if ($action == 'open') {
+                    $openFile = $webTools->streamFile($file_loc);
+                    $actionSetcontent = '';
+                    if ($openFile) {
+                        $fileSize = number_format(filesize($file_loc));
+
+                        $actionSetcontent .= "<div class='badge badge-warning badge-custom-notice-term'>[Open ". $file_loc ."] ". date('H:i d-m-Y') ."</div>";
+                        $actionSetcontent .= "<div style='border-left: 2px dotted grey; padding-left: 10px;'>Size: [$fileSize Bytes]</div>";
+
+
+                        $setJsonContent[] = [
+                            "action"    =>  $actionSetcontent,
+                            "content"   =>  $openFile 
+                        ];
+
+                        $setjson = json_encode($setJsonContent);
+                        echo $setjson;
+                    } else {
+
+                        $fileSize = 'Unknown';
+                        $actionSetcontent .= "<div class='badge badge-danger badge-custom-notice-term'>[Open Failed ". $file_loc ."] ". date('H:i d-m-Y') ."</div>";
+                        $actionSetcontent .= "<div style='border-left: 2px dotted grey; padding-left: 10px;'>Size: [$fileSize Bytes]</div>";
+
+                        $setJsonContent[] = [
+                            "action"    =>  $actionSetcontent,
+                            "content"   =>  $openFile 
+                        ];
+
+                        $setjson = json_encode($setJsonContent);
+                        echo $setjson;
+                    }
+                } elseif($action == 'save') {
+                    $content = trim($_POST['text_editor']);
+                    $saveFile = $webTools->saveFile($file_loc, 'w+', $content);
+                    $actionSetcontent = '';
+                    if ($saveFile) {
+
+                        $fileSize = number_format(filesize($file_loc));
+                        $actionSetcontent .= "<div class='badge badge-success badge-custom-notice-term'>[Saved ". $file_loc ."] ". date('H:i d-m-Y') ."</div>";
+                        $actionSetcontent .= "<div style='border-left: 2px dotted grey; padding-left: 10px;'>Size: [$fileSize Bytes]</div>";
+
+                        $setJsonContent[] = [
+                            "action"    =>  $actionSetcontent
+                        ];
+
+                        $setjson = json_encode($setJsonContent);
+                        echo $setjson;
+                    }else{
+
+
+
+                        $fileSize = 'Unknown';
+                
+                        $actionSetcontent .= "<div class='badge badge-danger badge-custom-notice-term'>[Save Failed ". $file_loc ."] ". date('H:i d-m-Y') ."</div>";
+                        $actionSetcontent .= "<div style='border-left: 2px dotted grey; padding-left: 10px;'>Size: [$fileSize Bytes]</div>";
+
+                        if ($webTools->createFile($file_loc, 'w+', $content)) {
+                            $fileSize = 'New File 0';
+                            $actionSetcontent = "<div class='badge badge-primary badge-custom-notice-term'>[File Created ". $file_loc ."] ". date('H:i d-m-Y') ."</div> $actionSetcontent";
+                            $actionSetcontent = "$actionSetcontent <div style='border-left: 2px dotted grey; padding-left: 10px;'>Size: [$fileSize Bytes]</div>";
+                        }
+
+                        $setJsonContent[] = [
+                            "action"    =>  $actionSetcontent
+                        ];
+
+                        $setjson = json_encode($setJsonContent);
+                        echo $setjson;
+                    }
+                } else{
+                    echo "no action set.";
+                }
             }
-            
+
             else {
                 dashboardPage($webTools);
             }
