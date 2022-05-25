@@ -28,6 +28,23 @@
             // something
         }
 
+        public function prefixSeparator($textPrefix = null){
+            $textPrefix = trim($textPrefix);
+            if ($textPrefix == '') {
+                return null;
+            } else {
+                $prefix = substr($textPrefix, -1);
+                if ($prefix == '/') {
+                    return $textPrefix;
+                } else {
+                    return $textPrefix. '/';
+                }
+                
+            }
+            
+
+        }
+
         public function domainName(){
             $getDomain = trim($_SERVER['SERVER_NAME']) !== '' ?  trim($_SERVER['SERVER_NAME']) :
                 (trim($_SERVER['SERVER_NAME']) ? trim($_SERVER['SERVER_NAME']) : '');
@@ -838,9 +855,88 @@
             } else {
                 return false;
             }
-            
+        }
+
+
+
+        public function createFolder($dirSave = null, $dirName = null){
+
+            if (trim($dirSave) !== '' && trim($dirName) !== '') {
+                if (is_dir($this->prefixSeparator($dirSave))) {
+                    if (!is_dir($this->prefixSeparator($dirSave). $dirName)) {
+                        $makeDir = @mkdir($this->prefixSeparator($dirSave). $dirName);
+                        if ($makeDir) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        public function uploadFile($dirUpload = null, $uploadName = null, $postName = null){
+
+            if (trim($dirUpload) !== '') {
+                if (is_dir($this->prefixSeparator($dirUpload))) {
+
+                    if ($uploadName !== null && isset($_FILES[$uploadName]) &&
+                        $postName !== null && isset($_POST[$postName])
+                    ) {
+                    
+                        $countFiles = count($_FILES[$uploadName]['name']);
+                        $uploadTo   = trim($this->prefixSeparator($dirUpload));
+                        
+                        $recordData = [];
+                        for ($i=0; $i < $countFiles; $i++) { 
+                            $fileTmp    = $countFiles > 0 ? $_FILES[$uploadName]['tmp_name'][$i] : $_FILES[$uploadName]['tmp_name'];
+                            $fileName   = $countFiles > 0 ? $_FILES[$uploadName]['name'][$i] : $_FILES[$uploadName]['name'];
+                            $fileType   = $countFiles > 0 ? $_FILES[$uploadName]['type'][$i] : $_FILES[$uploadName]['type'];
+
+                            $savePath = $uploadTo . $fileName;
+                        
+                            $uploading = @move_uploaded_file($fileTmp, $savePath);
+                            if($uploading){
+                                $recordData[] = [
+                                    'save_dir'  =>  $uploadTo,
+                                    'save_path' =>  $savePath,
+                                    'file_name' =>  $fileName,
+                                    'file_type' =>  $fileType,
+                                    'status'    =>  'success'
+                                ];
+                            } else {
+                                $recordData[] = [
+                                    'save_dir'  =>  $uploadTo,
+                                    'save_path' =>  $savePath,
+                                    'file_name' =>  $fileName,
+                                    'file_type' =>  $fileType,
+                                    'status'    =>  'failed'
+                                ];
+                            }
+                        }
+
+                        return $recordData;
+
+                    } else {
+                        return false;
+                    }
+
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
         }
     }
+
+
 
     // ins system
     $webTools = new webTools();
@@ -1111,6 +1207,35 @@
 
         .min-max-height {
             max-height: 150px !important;
+        }
+
+        /* popup */
+        .box-popup {
+            padding-top: 70px;
+            padding-bottom: 70px;
+            position: fixed;
+            top: 0px;
+            bottom: 0px;
+            left: 0px;
+            right: 0px;
+            width: 100%;
+            height: 100%;
+            /* width: 500px;	
+            height: 200px; */
+            z-index:1099999900;
+            display: none;
+            overflow: auto;
+            overflow-x: hidden;
+        }
+
+        .bordered {
+            border: 1px solid grey;
+        }
+
+        .badge {
+            font-size: var(--body-text-content-font-size);
+            margin-top: 3px;
+            margin-bottom: 3px;
         }
 
     </style>
@@ -1553,14 +1678,25 @@
                             <div class="card-header">
                                 
                                 <div class="row">
-                                    <div class="col-md-9">
-
+                                    <div class="col-md-2">
                                     </div>
-                                    <div class="col-md-3 text-right">
+                                    <div class="col-md-10 text-right">
+                                        <button type="button" id="newFileFileMgr" onclick="openPopup('#popup-upload');" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-upload"></i> Upload
+                                        </button>
+
+                                        <button type="button" id="newFileFileMgr" onclick="openPopup('#popup-new-file');" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-file-circle-plus"></i> New File
+                                        </button>
+
+                                        <button type="button" id="newDirFileMgr" onclick="openPopup('#popup-new-dir');" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-folder-plus"></i> New Folder
+                                        </button>
+
                                         <button type="button" id="clearFileMgr" onclick="removeLogFileMgrAct('#file-mgr-log-act');" class="btn bg-primary text-white">
                                             Clear Log Action
                                         </button>
-                                        <button type="button" id="clearFileMgr" onclick="setLoadFileMgr();" class="btn bg-primary text-white">
+                                        <button type="button" id="refreshFileMgr" onclick="setLoadFileMgr();" class="btn bg-primary text-white">
                                             <i class="fa-solid fa-arrows-rotate"></i>
                                         </button>
                                     </div>
@@ -1578,6 +1714,121 @@
                                         </div>
                                     </div>
                                 </form>
+
+                                <div class="box-popup" id="popup-upload">
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div class="card card-default bg-prim bordered">
+                                                <div class="card-header">
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <h4>Upload</h4>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <h4>
+                                                                <button class="close bg-prim text-white" onclick="closePopup('#popup-upload');">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="uploadFileMgr" action="#" method="post">   
+                                                         
+                                                        <label>Select Files</label>  
+                                                            <input type="text" hidden="hidden" id="upload_dir" name="upload_dir" required=""/>
+                                                            <input name="files[]" id="files" class="form-control" type="file" multiple />  
+                                                            <br/>
+                                                            <input type="submit" id="btnUploadFileMgr" class="btn btn-primary" value="Upload" />  
+                                                    </form> 
+                                                </div>
+                                                <div class="card-footer box-upload-file-mgr">
+                                                    <div class="upload-file-mgr-log"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
+
+                                <div class="box-popup" id="popup-new-dir">
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div class="card card-default bg-prim bordered">
+                                                <div class="card-header">
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <h4>Create a Directory</h4>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <h4>
+                                                                <button class="close bg-prim text-white" onclick="closePopup('#popup-new-dir');">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="newdirFileMgr" action="#" method="post">   
+                                                         
+                                                        <label>Directory Name</label>  
+                                                            <input type="text" hidden="hidden" id="dir_loc_create" name="dir_loc_create" required=""/>
+                                                            <input name="dir_name_new" id="dir_name_new" class="form-control text-white" type="text" required />  
+                                                            <br/>
+                                                            <input type="submit" id="btnNewDirFileMgr" class="btn btn-primary" value="Save" />  
+                                                    </form> 
+                                                </div>
+                                                <div class="card-footer box-new-dir-file-mgr">
+                                                    <div class="new-dir-file-mgr-log"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
+
+                                <div class="box-popup" id="popup-new-file">
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div class="card card-default bg-prim bordered">
+                                                <div class="card-header">
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <h4>Create a File</h4>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <h4>
+                                                                <button class="close bg-prim text-white" onclick="closePopup('#popup-new-file');">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="newfileFileMgr" action="#" method="post">   
+                                                         
+                                                        <label>File Name</label>  
+                                                            <input type="text" hidden="hidden" id="dir_loc_file" name="dir_loc_file" required=""/>
+                                                            <input name="file_name_new" id="file_name_new" class="form-control text-white" type="text" required />  
+                                                            <br/>
+                                                            <input type="submit" id="btnNewFileFileMgr" class="btn btn-primary" value="Save" />  
+                                                    </form> 
+                                                </div>
+                                                <div class="card-footer box-new-file-file-mgr">
+                                                    <div class="new-file-file-mgr-log"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="card-body box-file-mgr-act min-max-max scroll-active">
                                 <div id="file-mgr-log-act">No Action.</div>
@@ -1704,6 +1955,15 @@
     //         alert("Text has been copied.");
     //     }
     // }
+
+    // popup
+    function openPopup(popup = null){
+        $(popup).fadeIn("slow");
+    }
+
+    function closePopup(popup = null){
+        $(popup).fadeOut("slow");
+    }
 
     function removeElem(elem = null){
         if (elem == null) {
@@ -1855,6 +2115,143 @@
             }
         });
     }
+
+    
+
+    //upload file manager
+    $(document).ready(function(){
+
+        // set interval get dir
+        setInterval(function(){
+            var scan_dir_mgr = $('#scan_dir_mgr').val();
+            $('#upload_dir').val(scan_dir_mgr);
+            $('#dir_loc_create').val(scan_dir_mgr);
+            $('#dir_loc_file').val(scan_dir_mgr);
+        }, 500);
+
+        
+        // file_name_new
+        // dir_loc_file
+        // btnNewFileFileMgr
+        // box-new-file-file-mgr
+        // new-file-file-mgr-log
+        // newfileFileMgr
+        $('#newfileFileMgr').on('submit', function(e){  
+            e.preventDefault();  
+
+            $('.new-file-file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingNewFileFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Uploading...</div></center></div>');
+            $('#btnNewFileFileMgr').attr("disabled", true);
+
+            $.ajax({  
+                url: "<?= $webTools->baseLink; ?>?page=new-file",  
+                type: "POST",  
+                data: new FormData(this),
+                contentType: false,  
+                processData: false, 
+                success: function(data){
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingNewFileFileMgr');
+                    $('#btnNewFileFileMgr').attr("disabled", false);
+                    $('.new-file-file-mgr-log').html('<div class="box-msg">'+ data +'</div>'); 
+                    setLoadFileMgr();
+                
+                },
+                error: function (e) {
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingNewFileFileMgr');
+                    $('#btnNewFileFileMgr').attr("disabled", false);
+                    $('.new-file-file-mgr-log').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                    setLoadFileMgr();
+                } 
+            }); 
+                
+        });  
+
+
+        // dir_name_new
+        // dir_loc_create
+        // btnNewDirFileMgr
+        // box-new-dir-file-mgr
+        // new-dir-file-mgr-log
+        // newdirFileMgr
+        $('#newdirFileMgr').on('submit', function(e){  
+            e.preventDefault();  
+
+            var scan_dir_mgr = $('#scan_dir_mgr').val();
+
+            $('.new-dir-file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingNewDirFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Uploading...</div></center></div>');
+            $('#btnNewDirFileMgr').attr("disabled", true);
+
+            $.ajax({  
+                url: "<?= $webTools->baseLink; ?>?page=new-folder",  
+                type: "POST",  
+                data: new FormData(this),
+                contentType: false,  
+                processData: false, 
+                success: function(data){
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingNewDirFileMgr');
+                    $('#btnNewDirFileMgr').attr("disabled", false);
+                    $('.new-dir-file-mgr-log').html('<div class="box-msg">'+ data +'</div>'); 
+                    setLoadFileMgr();
+                
+                },
+                error: function (e) {
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingNewDirFileMgr');
+                    $('#btnNewDirFileMgr').attr("disabled", false);
+                    $('.new-dir-file-mgr-log').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                    setLoadFileMgr();
+                } 
+            }); 
+                
+        });  
+
+        // btnUploadFileMgr
+        // box-upload-file-mgr
+        // upload-file-mgr-log
+        // uploadFileMgr
+        $('#uploadFileMgr').on('submit', function(e){  
+            e.preventDefault();  
+
+            var scan_dir_mgr = $('#scan_dir_mgr').val();
+            const inputFiles = document.querySelector('#files');
+            const totalFiles = inputFiles.files.length;
+
+            if (totalFiles > 0) {
+                
+                $('.upload-file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingUploadFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Uploading...</div></center></div>');
+                $('#btnUploadFileMgr').attr("disabled", true);
+
+                $.ajax({  
+                    url: "<?= $webTools->baseLink; ?>?page=upload-file-mgr-proc",  
+                    type: "POST",  
+                    data: new FormData(this),
+                    contentType: false,  
+                    processData: false, 
+                    success: function(data){
+                        //removeLogFileMgr('#file-mgr-log-act');
+                        removeElem('.loadingUploadFileMgr');
+                        $('#btnUploadFileMgr').attr("disabled", false);
+                        $('.upload-file-mgr-log').html('<div class="box-msg">'+ data +'</div>'); 
+                        setLoadFileMgr();
+                    
+                    },
+                    error: function (e) {
+                        //removeLogFileMgr('#file-mgr-log-act');
+                        removeElem('.loadingUploadFileMgr');
+                        $('#btnUploadFileMgr').attr("disabled", false);
+                        $('.upload-file-mgr-log').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                        setLoadFileMgr();
+                    } 
+                }); 
+                
+            // this.reset();
+            }else{
+                $('.upload-file-mgr-log').html('<div class="box-msg text-bold badge badge-danger text-white">Please select file!</div>'); 
+            }
+        });  
+    });  
 
     function loadMgrByItem(dataSet = null){
         setValueTo('#scan_dir_mgr', dataSet);
@@ -2623,8 +3020,88 @@
                 } else{
                     echo "no action set.";
                 }
-            }
+            } elseif($pageShow == 'new-folder'){
 
+                $dirNewName = trim($_POST['dir_name_new']);
+                $dirLoc = trim($_POST['dir_loc_create']);
+
+                $newDirProc = $webTools->createFolder($dirLoc, $dirNewName);
+                echo "<div class='badge badge-warning badge-custom-notice-term'>[New Directory In $dirLoc] ". date('H:i d-m-Y') ."</div>
+                ";
+                if($newDirProc){
+                    
+                    echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>";
+                    echo '<div>Directory Name: '. $dirNewName . ' 
+                    <div class="badge badge-success text-white">Success</div>
+                    </div>';
+                    echo "</div>";
+
+                }else{
+                    echo "<div><div class='badge badge-danger text-white'>Failed create a directory in [$dirLoc] [$dirNewName].</div></div>";
+                }
+
+                echo "</div>";
+
+            } elseif($pageShow == 'upload-file-mgr-proc'){
+
+                $uploadDir = trim($_POST['upload_dir']);
+
+                /* response
+                    'save_dir'  =>  $uploadTo,
+                    'save_path' =>  $savePath,
+                    'file_name' =>  $fileName,
+                    'file_type' =>  $fileType,
+                    'status'    =>  'failed' 
+                */
+                $uploading = $webTools->uploadFile($uploadDir, 'files', 'upload_dir');
+
+                echo "<div class='badge badge-warning badge-custom-notice-term'>[Upload $uploadDir] ". date('H:i d-m-Y') ."</div>
+                ";
+                if($uploading){
+                    foreach ($uploading as $key => $value) {
+                        $statusUpload = $value['status'] == 'success' ? 'success' : 'danger';
+                        $fileSize = number_format(((filesize(trim($value['save_path'])) / 1024) / 1024), 2);
+                        echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>";
+                        echo '<div>'. $value['save_path'] . ' 
+                        <div class="badge badge-'. $statusUpload .' text-white">'. $value['status'] .'</div>
+                        </div>
+                        <div>Size: '. $fileSize .'MB</div>
+                        ';
+                        echo "</div>";
+                    } 
+
+                }else{
+                    echo "<div><div class='badge badge-danger text-white'>Upload failed.</div></div>";
+                }
+
+                echo "</div>";
+
+            
+            } elseif($pageShow == 'new-file'){
+
+                $uploadDir = trim($_POST['dir_loc_file']);
+                $file_name_new = trim($_POST['file_name_new']);
+                $content = '';
+                
+                $createFile = $webTools->createFile($webTools->prefixSeparator($uploadDir) . $file_name_new, 'w+', $content);
+
+                echo "<div class='badge badge-warning badge-custom-notice-term'>[Create New File In $uploadDir] ". date('H:i d-m-Y') ."</div>";
+                if($createFile){
+                    
+                    echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>";
+                    echo '<div>File Name: '. $file_name_new . ' 
+                    <div class="badge badge-success text-white">Success</div>
+                    </div>';
+                    echo "</div>";
+
+                }else{
+                    echo "<div><div class='badge badge-danger text-white'>Failed create a File in [$uploadDir] [$file_name_new].</div></div>";
+                }
+
+                echo "</div>";
+            }
+            
+            
             else {
                 dashboardPage($webTools);
             }
