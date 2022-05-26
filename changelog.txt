@@ -1,0 +1,44 @@
+
+Release v 1.4
+
+#update Features
+- Add Feature In File Manager, you can make a directory, file, zipper, link to feature text editor
+
+#Fix Bugs
+
+---------------------------------------
+
+Release v 1.3
+
+#update Features
+- Add Feature Text Editor
+
+#Fix Bugs
+
+---------------------------------------
+
+Release v 1.2 beta
+
+#update Features
+- Add Feature In File Manager, you can copy path, delete directory and show
+
+#Fix Bugs
+
+---------------------------------------
+
+Release v 1.1 beta
+
+#update Features
+- Add Feature File Manager
+
+#Fix Bugs
+- Fix bug file manager. submit directory cant set reload
+
+---------------------------------------
+
+Release v 1.0 beta
+
+#update Features
+- Add Feature Terminal
+- Add Feature File Scan
+- Add Feature PHP Info

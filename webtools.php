@@ -3,7 +3,7 @@
     /* 
         - CREATE BY FORDEVELOPERTOOLS WEB DEVELOPER TEAM
         - AUTHOR: NUR SHODIK ASSALAM
-        - VERSION  1.2 BETA
+        - VERSION  1.4 BETA
         - RELEASE 5-20-2022
         - UPDATE 5-24-2022
     */
