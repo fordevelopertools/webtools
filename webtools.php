@@ -4275,8 +4275,8 @@
                                 </div>
                             </div>
                             <div class="col-md-3 text-right">
-                                <button class="btn btn-sm bg-primary" onclick=\'showHideElem("#sec_action_scan_'. $xCounter .'")\'>
-                                    <i class="fa-solid fa-chevron-down"></i>
+                                <button class="btn btn-sm bg-sec" onclick=\'showHideElem("#sec_action_scan_'. $xCounter .'")\'>
+                                    <i class="fa-solid fa-chevron-down text-white"></i>
                                 </button>
                             </div>
                         </div>
