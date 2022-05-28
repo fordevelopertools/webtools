@@ -9,11 +9,23 @@
     */
 
     // started First
-    session_start();
-    date_default_timezone_set('asia/jakarta');
     ini_set('display_errors', 1); 
     ini_set('display_startup_errors', 1); 
     error_reporting(E_ALL);
+
+    session_start();
+    date_default_timezone_set('asia/jakarta');
+
+    // auto create directory for log, session and any.
+    $autoCreateDirectory = './fordevelopertools_app';
+    $autoCreateScan = 'fordevelopertools_app/scan';
+    if (!is_dir($autoCreateDirectory)) {
+        @mkdir($autoCreateDirectory);
+    }
+
+    if (is_dir($autoCreateDirectory)) {
+        @mkdir($autoCreateScan);
+    }
 
     class WebTools
     {   
@@ -1079,7 +1091,7 @@
             // default set
             $scanPayload = $scanPayload == null ? 
                 $this->defaultExCheck : $scanPayload;
-            $maxSizeCheck = $maxSizeCheck = null || $maxSizeCheck == ''? $this->defaultOpenFileSize : 0;
+            $maxSizeCheck = $maxSizeCheck == null || $maxSizeCheck == ''? $this->defaultOpenFileSize : $maxSizeCheck;
 
             // get payload set
             $malwarePayloadSet = file_get_contents($this->malwareScanPayload); 
@@ -1247,9 +1259,6 @@
                                     continue;
                                 }
                                 
-
-                                
-
                             } else {
                                 continue;
                             }
@@ -1302,7 +1311,7 @@
         // something
     }
     ?>
-    <style>
+    <style id="styleMaster">
         @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200;300;400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css?family=Bungee:wght@100;200;300;400;500;600;700;800');
 
@@ -1341,7 +1350,7 @@
             display: block;
             background: var(--primary-color);
             margin-top: 8px;
-            margin-bottom: 8px;;
+            margin-bottom: 8px;
         }
 
         .separator-sec {
@@ -1576,6 +1585,130 @@
             margin-top: 3px;
             margin-bottom: 3px;
         }
+
+        .circle {
+            border-radius: 50%;
+        }
+
+        .scan-item-circle {
+            width: 150px;
+            height: 150px;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            flex-direction: column;
+            cursor: pointer;
+            user-select: none;
+            border: 5px double blue;
+            border-radius: 50%;
+        }
+
+        .scan-item-circle-anim {
+            border: 3px solid white;
+            animation: border-anim-shadow 3s 0s infinite linear alternate;
+        }
+
+        .scan-item-circle:active {
+            border: 5px double white;
+        }
+
+        .scan-item-circle-complete {
+            border: 5px double #00ff40;
+        }
+
+        @keyframes border-anim {
+            0% {
+                border: 5px double var(--secondary-color);
+            }
+            100% {
+                border: 5px double white;
+            }
+        }
+
+        @keyframes border-anim-shadow {
+            0% {
+                box-shadow: 0px 0px 10px 2px white;
+                
+            }
+            25% {
+                box-shadow: 0px 0px 10px 4px white;
+                
+            }
+            50% {
+                box-shadow: 0px 0px 10px 6px grey;
+            }
+            75% {
+                box-shadow: 0px 0px 10px 8px #007BFF;
+            }
+            100% {
+                box-shadow: 0px 0px 10px 10px #007BFF;
+            }
+
+        }
+
+        .scan-item-circle:hover {
+            transition: 0.2s ease-out;
+            box-shadow: 0px 0px 5px white;
+        }
+
+        .icon-scan-size {
+            font-size: 50px;
+        } 
+        
+        .text-scan-header {
+            font-size: var(--body-text-header-font-size);
+            margin-top: 6px;
+        }
+
+        .anim-rotate {
+            animation: rotate-x 5s 0s infinite linear alternate;  
+        }
+
+        @keyframes rotate-x {
+            0% {
+                transform: rotateY(0deg);
+            }
+            100% {
+                transform: rotateY(360deg);
+            }
+        }
+
+        .indicator-color {
+            padding-left: 9px;
+            padding-right: 9px;
+            display: inline;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+        .indicator-color-one {
+            background-color: #00ff40;
+        }
+
+        .indicator-color-two {
+            background-color: #f9ec02;
+        }
+
+        .indicator-color-three {
+            background-color: #faaf01;
+        }
+
+        .indicator-color-four {
+            background-color: #f96b02;
+        }
+
+        .indicator-color-five {
+            background-color: #fb0000;
+        }
+
+        .indicator-color-six {
+            background-color: #2b3cd0;
+        }
+        
+        .scan-info-box {
+            min-height: 250px;
+            max-height: 250px;
+        }
+
 
     </style>
 </head>
@@ -2380,6 +2513,7 @@
                         <div class="card elem-content bg-prim text-white">
                             <div class="card-header">
                                 <h4>Scan Malware & Permission</h4>
+                                <button onclick="setTheme();">Set Theme</button>
                             </div>
                         </div>
                     </div>
@@ -2389,44 +2523,126 @@
                     <div class="col-md-12">
                         <div class="card elem-content bg-prim text-white">
                             <div class="card-header">
-                                
-                                <div class="row">
-                                    <div class="col-md-3">
+                                <div class="input-group mb-3 bg-transparent">
+                                    <input type="text" class="form-control" name="dir_for_scan_malware" id="dir_for_scan_malware" placeholder="Directory Location..." value="<?= isset($_GET['directory_location']) && trim($_GET['directory_location']) !== '' ? trim($_GET['directory_location']): './'; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                    
+                                    <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" style="color: white !important;" required/>
 
-                                    </div>
-                                    <div class="col-md-9 text-right">
-                                        <button type="button" id="refreshTextEditor" onclick="autoStartTextEditor();" class="btn bg-primary text-white">
-                                            <i class="fa-solid fa-arrows-rotate"></i>
-                                        </button>
-                                        <button type="button" id="clearTextEditor" onclick="removeLogTextEditor('#text-editor-log');" class="btn bg-primary text-white">
-                                            Clear Log Action
-                                        </button>
-                                        <button type="button" id="saveTextEditor" onclick="saveTextEditor();" class="btn bg-primary text-white">
-                                            <i class="fa-solid fa-floppy-disk"></i> Save
-                                        </button>
-                                    </div>
+                                    <input type="number" class="form-control" name="scan_limit_size" id="scan_limit_size" value="1048576" placeholder="Scan limit size Bytes..." class="bg-transparent text-white" style="color: white !important;" required/>
+                                    
+                                    <select class="form-control" name="scan_level" id="scan_level" style="color: grey;" required/>
+                                        <option value="4">Default Level 4 Scan</option>
+                                        <option value="1">Level 1</option>
+                                        <option value="2">Level 2</option>
+                                        <option value="3">Level 3</option>
+                                        <option value="4">Level 4</option>
+                                        <option value="5">Level 5</option>
+                                        <option value="6">Level 6</option>
+                                    </select>
+
+                                    <select class="form-control" name="show_detail" id="show_detail" style="color: grey;" required/>
+                                        <option value="block">Show Details</option>
+                                        <option value="none">Hide Details</option>
+                                    </select>
+
                                 </div>
-
-                                <div class="separator-sec"></div>
-
-                                <form id="text-editor-input" action="" method="post">
-                                    <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
-                                        <div class="input-group-append">
-                                            <button id="submitTextEditor" class="btn btn-outline-secondary bg-transparent" type="submit">
-                                                <i class="fa-solid fa-arrow-right"></i>
-                                            </button>
+                            </div>
+                            <div class="card-body">
+                                <style>
+                                    
+                                </style>
+                                <div class="row">
+                                    <div class="col-md-4 my-auto mx-auto">
+                                        <div id="malwareParamStart" class="d-none">0</div>
+                                        <div class="scan-item-circle mx-auto" onclick="malwareScanStart();">
+                                            <div>
+                                                <i id='loadingIconScan' class="fa-solid fa-shield-cat icon-scan-size"></i>
+                                            </div>
+                                            <div class="text-scan-header">
+                                                <strong id="text-scan-now">SCAN NOW</strong>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong class="text-scan-header">LEVEL SCAN</strong>
+                                        <div class="separator-sec"></div>
+                                        <div class="row">
+                                            <div class="col-12 pt-2 pb-2">
+                                                <div class="indicator-color indicator-color-one"></div> 
+                                                Level 1 Scan : Normal
+                                            </div>
+                                            <div class="col-12 pt-2 pb-2">
+                                                <div class="indicator-color indicator-color-two"></div> 
+                                                Level 2 Scan : Normal - Warning
+                                            </div>
+                                            <div class="col-12 pt-2 pb-2">
+                                                <div class="indicator-color indicator-color-three"></div> 
+                                                Level 3 Scan : Warning
+                                            </div>
+                                            <div class="col-12 pt-2 pb-2">
+                                                <div class="indicator-color indicator-color-four"></div> 
+                                                Level 4 Scan : Warning - Risk
+                                            </div>
+                                            <div class="col-12 pt-2 pb-2">
+                                                <div class="indicator-color indicator-color-five"></div> 
+                                                Level 5 Scan : Risk
+                                            </div>
+                                            <div class="col-12 pt-2 pb-2">
+                                                <div class="indicator-color indicator-color-six"></div> 
+                                                Level 6 Scan : Normal - Warning - Risk
+                                            </div>
                                         </div>
                                     </div>
-                                </form>
+                                    <div class="col-md-4">
+                                        <strong class="text-scan-header">INFO</strong>
+                                        <div class="separator-sec"></div>
+                                        <div class="scan-info-box scroll-active">
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div><div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div><div class="p3">
+                                                a
+                                            </div>
+                                            <div class="p3">
+                                                a
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body box-text-editor min-max-height scroll-active">
-                                <div id="text-editor-log">No Action.</div>
-                                <div class="separator-sec"></div>
+                            <div class="card-footer box-malware-scan fixed-full-height scroll-active">
+                                <div id="malware-scan-log">No Action.</div>
                             </div>
-                            <div class="card-footer">
-                            
-                        </div>
                         </div>
                     </div>
                 </div>
@@ -2495,6 +2711,22 @@
 
     function closePopup(popup = null){
         $(popup).fadeOut("slow");
+    }
+
+    function showElem(elemId = null){
+        $(elemId).show();
+    }
+
+    function hideElem(elemId = null){
+        $(elemId).hide();
+    }
+
+    function showHideElem(elemId = null){
+        if(document.querySelector(elemId).style.display == 'none'){
+            document.querySelector(elemId).style.display = 'block';
+        }else{
+            document.querySelector(elemId).style.display = 'none';
+        }
     }
 
     function removeElem(elem = null){
@@ -3094,6 +3326,101 @@
         
 
     });
+
+    <?php } elseif($webTools->pageActive() == 'malware-perm-scan'){ ?>
+
+    function setTheme(){
+        // var sheet = document.styleSheets[0];
+        
+        var cssSet  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px;} .text-white{color: black !important;}";
+
+        $('#styleMaster').append(cssSet);
+
+        // sheet.insertRule(cssSet);
+    }
+
+    function malwareScanStart(){
+
+        var dir_for_scan_malware = $('#dir_for_scan_malware').val();
+        var scan_level = $('#scan_level').val();
+        var scan_regex_search = $('#scan_regex_search').val();
+        var scan_limit_size = $('#scan_limit_size').val();
+        var malwareParamStart = $('#malwareParamStart').html().trim();
+        var show_detail = $('#show_detail').val();
+        
+        
+        if (malwareParamStart == '0') {
+
+            $('.scan-item-circle').removeClass('scan-item-circle-complete');
+            $('.scan-item-circle').addClass('scan-item-circle-anim');
+            $('#loadingIconScan').addClass('anim-rotate');
+            $('#text-scan-now').html('SCANNING...');
+
+            $('#malwareParamStart').html('1');
+
+            $('#malware-scan-log').html('<div class="box-msg d-block"><center><div class="loadingLogMalware"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Getting Results...</div></center></div>');
+            
+            // disable input
+            $('#dir_for_scan_malware').attr("disabled", true);
+            $('#scan_level').attr("disabled", true);
+            
+            $.ajax({
+                type: 'POST',
+                url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-proc&action=scan",
+                dataType: 'html',
+                cache: false, 
+                data: {
+                    dir_for_scan_malware: dir_for_scan_malware,
+                    scan_level: scan_level,
+                    scan_regex_search: scan_regex_search,
+                    scan_limit_size: scan_limit_size,
+                    show_detail: show_detail
+                },
+                success: function(data){
+                    // disable input
+                    $('#dir_for_scan_malware').attr("disabled", false);
+                    $('#scan_level').attr("disabled", false);
+
+                    removeElem('.loadingLogMalware');
+                    $('#malwareParamStart').html('0');
+
+                    $('.scan-item-circle').addClass('scan-item-circle-complete');
+                    $('.scan-item-circle').removeClass('scan-item-circle-anim');
+                    $('#loadingIconScan').removeClass('anim-rotate');
+                    $('#text-scan-now').html('SCAN COMPLETE');
+                    $('#malware-scan-log').html(data);
+
+                    setTimeout(() => {
+                        $('#text-scan-now').html('SCAN AGAIN?');
+                    }, 1000);
+
+                },
+                error: function (e) {
+                    // disable input
+                    $('#dir_for_scan_malware').attr("disabled", false);
+                    $('#scan_level').attr("disabled", false);
+
+                    removeElem('.loadingLogMalware');
+                    $('#malwareParamStart').html('0');
+
+                    $('.scan-item-circle').removeClass('scan-item-circle-anim');
+                    $('#loadingIconScan').removeClass('anim-rotate');
+                    $('#text-scan-now').html('SCAN COMPLETE');
+                    $('.scan-item-circle').addClass('scan-item-circle-complete');
+
+                    setTimeout(() => {
+                        $('#text-scan-now').html('SCAN AGAIN?');
+                    }, 1000);
+
+                }
+            });
+        } else {
+            $('#text-scan-now').html('ON PROGRESS');
+            setTimeout(() => {
+                $('#text-scan-now').html('SCANNING...');
+            }, 1500);
+        }
+    }
 
     <?php } elseif($webTools->pageActive() == 'text-editor'){ ?>
 
@@ -3905,11 +4232,124 @@
 
                 echo "</div>";
 
-            } elseif($pageShow == 'malware-scan-proc'){
-                $a = $webTools->malwareScan('C:\laragon\www\games', '.php', null, 6, null);
-                
-                print_r($a);
+            } elseif($pageShow == 'malware-perm-scan-proc'){
+                $dir_for_scan_malware  = trim($_POST['dir_for_scan_malware']);
+                $scan_level  = trim($_POST['scan_level']);
+                $scan_regex_search = trim($_POST['scan_regex_search']);
+                $scan_limit_size = trim($_POST['scan_limit_size']);
+                $showDetail = trim($_POST['show_detail']);
 
+                $timeSetID = date('H:i d-m-Y') ." - ". time();
+
+                /* 
+                #Scan results json parameter
+                => array
+                [last_scan] => 15:53 28-05-2022
+                [time_start] => 1653728002
+                [scan_item] => Array
+                    [file_path] => .\webtools.php
+                    [item_result] => Array
+                        [level] => risk
+                        [name] => shell
+                        [desc] => if File .php have a this string, potential a malware
+                        [pos] => 2131
+                        [short_script] => shell_exec_available(){if(in_array(strtolower(ini_get('safe_mode')),ar
+                [time_end] => 1653728002
+                [total_time_execute] => 0
+                */
+
+                echo "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
+
+                $getResultScan = $webTools->malwareScan($dir_for_scan_malware, $scan_regex_search, $scan_limit_size, $scan_level, null);
+
+                if ($getResultScan && is_array($getResultScan) && count($getResultScan) > 0) {
+                    $xCounter = 1;
+                    foreach ($getResultScan['scan_item'] as $keyItemResults => $valueItemResults) {
+
+                        echo '<div class="list-item-scan" style="border-top: 3px dotted #f4f4f4; border-left: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px; font-size: 16px !important;" id="list-item-scan_'. $xCounter .'">';
+                        echo '
+                        <div class="row">
+                            <div class="col-md-9">
+                                <div class="sec-action-scan">
+                                    '. $valueItemResults['file_path']. '
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-right">
+                                <button class="btn btn-sm bg-primary" onclick=\'showHideElem("#sec_action_scan_'. $xCounter .'")\'>
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </button>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div style="display: '. $showDetail  .';" id="sec_action_scan_'. $xCounter .'">
+                            <div class="row">
+                                <div class="col-md-12">
+                        ';
+                        
+                        
+                        /* 
+                            # results array params
+                            [item_result] => Array
+                            [level] => risk
+                            [name] => shell
+                            [desc] => if File .php have a this string, potential a malware
+                            [pos] => 2131
+                            [short_script] => shell_exec_available(){if(in_array( 
+                        */
+
+                        if (is_array($valueItemResults['item_result']) && count($getResultScan['scan_item']) > 0) {
+
+                            foreach ($valueItemResults['item_result'] as $keyItemScan => $valueItemScan) {
+
+                                $setColorBg  = $valueItemScan['level']  == 'risk' ? 'danger' : 
+                                    ($valueItemScan['level']  == 'warning' ? 'warning' : 'success');
+
+                                echo '<div class="list-item-scan" style="border-left: 2px dotted grey; border-top: 1px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;">';           
+
+                                echo '
+                                <div>
+                                    <strong>Detect Script By: </strong>'. $valueItemScan['name'] .'
+                                </div>
+                                ';
+
+                                echo '
+                                <div>
+                                    <strong>Description: </strong>'. $valueItemScan['desc'] .'
+                                </div>
+                                ';
+                                
+                                echo '
+                                <div>
+                                    <strong>Short Script: </strong>'. htmlspecialchars($valueItemScan['short_script']) .'...
+                                </div>
+                                ';
+
+                                echo '
+                                <div>
+                                    <strong>Level: </strong> <div class="badge badge-'. $setColorBg .' text-white">'. $valueItemScan['level'] .'</div>
+                                </div>
+                                ';
+
+                                echo "</div>";
+                            }
+                        }
+
+                        
+                        echo'</div></div></div>';
+                        echo "</div>";
+                        echo "</div>";
+
+
+                        $xCounter++;
+
+                    }
+                    
+
+                    
+                } else {
+                    echo "<div><div class='badge badge-danger text-white'>Results 0. or False.</div></div>";
+                }
             }
 
             else {
