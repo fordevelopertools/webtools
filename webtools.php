@@ -31,7 +31,7 @@
         // scan default config
         public $defaultExCheck = '.php;.phtml;.php3;.php4;.php5;.phps;.html;.css;.js';
         public $defaultOpenFileSize = 1048576; // 2MB
-        public $malwareScanPayload = './malware-perm-scan-payload/payload.json';
+        public $malwareScanPayload = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/malware-perm-scan-payload/payload.json';
 
         
 
