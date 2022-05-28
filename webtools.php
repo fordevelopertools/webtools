@@ -5,44 +5,67 @@
         - AUTHOR: NUR SHODIK ASSALAM
         - VERSION  1.4 BETA
         - RELEASE 5-20-2022
-        - UPDATE 5-24-2022
+        - UPDATE 5-26-2022
     */
 
     // started First
     session_start();
     date_default_timezone_set('asia/jakarta');
+    ini_set('display_errors', 1); 
+    ini_set('display_startup_errors', 1); 
+    error_reporting(E_ALL);
 
     class WebTools
     {   
+        // user default config
         public $userImage = 'https://raw.githubusercontent.com/fordevelopertools/webtools/89bb08d74b725a17704ffb5cafa3c6f4e8acd7a7/logo.png';
-        public $userName = 'NUR SHODIK ASSALAM';
+        public $userName = 'FORDEVELOPERTOOLS';
         public $authPass = 'root!';
         public $loadImage = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/loading.gif';
-        public $malwareCheckPayload = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/listing_malware_payload.txt';
 
+        // directory and file default config
         public $dirLoc = __DIR__;
         public $fileLoc = __FILE__;
         public $baseLink = './webtools.php';
+
+        // scan default config
+        public $defaultExCheck = '.php;.phtml;.php3;.php4;.php5;.phps;.html;.css;.js';
+        public $defaultOpenFileSize = 1048576; // 2MB
+        public $malwareScanPayload = './malware-perm-scan-payload/payload.json';
+
+        
 
         public function __construct(){
             // something
         }
 
-        public function prefixSeparator($textPrefix = null){
+        public function cleanAll($text = null){
+            if ($text == '' || $text == null) {
+                return null;
+            } else {
+                return preg_replace('/\s+/', '', $text);
+            }
+        }
+
+        public function prefixSeparator($textPrefix = null, $lastSeparator = null){
             $textPrefix = trim($textPrefix);
             if ($textPrefix == '') {
                 return null;
             } else {
                 $prefix = substr($textPrefix, -1);
-                if ($prefix == '/') {
-                    return $textPrefix;
-                } else {
-                    return $textPrefix. '/';
-                }
-                
-            }
-            
 
+                if (trim($lastSeparator) !== 'ns') {
+                    if ($prefix == '/' || $prefix == '\\') {
+                        return $textPrefix;
+                    } else {
+                        return $textPrefix . DIRECTORY_SEPARATOR;
+                    }
+                } else {
+                    $setSeparator = trim($prefix) == '/' || trim($prefix) == '\\' ? 
+                        substr($textPrefix, 0, (strlen($textPrefix) - 1)) : $textPrefix;
+                        return $setSeparator;
+                }
+            }
         }
 
         public function domainName(){
@@ -183,7 +206,8 @@
         }
 
         public function filePermInfo($pathLoc = null){
-            $perms = fileperms(trim($pathLoc));
+            $perms = @fileperms(trim($pathLoc));
+            $perms = $perms ? $perms: 0;
 
             switch ($perms & 0xF000) {
                 case 0xC000: // socket
@@ -433,7 +457,8 @@
         public function strSearch($haystack, $needles=array(), $offset=0) {
             $chr = array();
             foreach($needles as $needle) {
-                    $res = strpos($haystack, $needle, $offset);
+                    $res = trim($needle) == '' || $needle == null ? false : 
+                        strpos($haystack, $needle, $offset);
                     if ($res !== false) $chr[$needle] = $res;
             }
             if(empty($chr)) return false;
@@ -531,7 +556,7 @@
             }
         }
 
-        function ff_delete($pathLoc = null){
+        public function ff_delete($pathLoc = null){
             $pathLoc = trim($pathLoc);
             if (trim($pathLoc) !== '') {
                 if(is_dir(trim($pathLoc))){
@@ -857,8 +882,6 @@
             }
         }
 
-
-
         public function createFolder($dirSave = null, $dirName = null){
 
             if (trim($dirSave) !== '' && trim($dirName) !== '') {
@@ -874,6 +897,121 @@
                         return false;
                     }
                 } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        public function renameFF($locRename = null, $locNewName = null){
+            if (trim($locRename) !== '' && trim($locNewName) !== '') {
+                $locRenameFile = trim($locRename);
+                $locRename = $this->prefixSeparator(trim($locRename));
+                $locNewName = trim($locNewName);
+
+                // rename directory
+                if (is_dir($locRename) && !is_dir($locRename . $locNewName)) {
+                    $setLocDir = $this->prefixSeparator(dirname($locRenameFile));
+                    $renameDir = rename($locRename, $setLocDir . $locNewName);
+                    if ($renameDir) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } 
+                
+                // rename file
+                elseif (file_exists($locRenameFile)) {
+
+                    $fileLocDir = $this->prefixSeparator(dirname($locRenameFile));
+                    if (!file_exists($fileLocDir . $locNewName)) {
+                        $renameFile = @rename($locRenameFile, $fileLocDir . $locNewName);
+                        if ($renameFile) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        public function recursiveCopy($source = null, $destination = null){   
+            
+            if (is_dir($source) && !is_dir($destination)) {
+            
+                // refrence 
+                if (!is_dir($destination)) {
+                    mkdir($destination);
+                }
+            
+                $splFileInfoArr = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($source), RecursiveIteratorIterator::SELF_FIRST);
+            
+                foreach ($splFileInfoArr as $fullPath => $splFileinfo) {
+                    //skip . ..
+                    if (in_array($splFileinfo->getBasename(), [".", ".."])) {
+                        continue;
+                    }
+                    //get relative path of source file or folder
+                    $path = str_replace($source, "", $splFileinfo->getPathname());
+            
+                    if ($splFileinfo->isDir()) {
+                        mkdir($destination . "/" . $path);
+                    } else {
+                    copy($fullPath, $destination . "/" . $path);
+                    }
+                }
+
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public function copyFF($loccopy = null, $locNewName = null){
+            if (trim($loccopy) !== '' && trim($locNewName) !== '') {
+                $loccopyFile = trim($loccopy);
+                $loccopy = $this->prefixSeparator(trim($loccopy));
+                $locNewName = trim($locNewName);
+        
+                // copy directory
+                if (is_dir($loccopy) && !is_dir($loccopy . $locNewName)) {
+                    $setLocDir = $this->prefixSeparator(dirname($loccopyFile));
+                    $copyDir =  $this->recursiveCopy(
+                        $this->prefixSeparator($loccopy, 'ns'), 
+                        $setLocDir .
+                        $this->prefixSeparator($locNewName, 'ns')
+                    );
+                    
+                    if ($copyDir) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } 
+                
+                // copy file
+                elseif (file_exists($loccopyFile)) {
+        
+                    $fileLocDir = $this->prefixSeparator(dirname($loccopyFile));
+                    if (!file_exists($fileLocDir . $locNewName)) {
+                        $copyFile = @copy($loccopyFile, $fileLocDir . $locNewName);
+                        if ($copyFile) {
+                            return true;
+                        } else { 
+                            return false;
+                        }
+                    } else {
+                        return false;
+                    }
+                }else {
                     return false;
                 }
             } else {
@@ -934,8 +1072,202 @@
                 return false;
             }
         }
-    }
 
+        public function malwareScan($dirScan = null, $searchPatern = null, $maxSizeCheck = null, $lvlScanUser = 6, $paramData = null){
+            
+            $scanPayload = $searchPatern;
+            // default set
+            $scanPayload = $scanPayload == null ? 
+                $this->defaultExCheck : $scanPayload;
+            $maxSizeCheck = $maxSizeCheck = null || $maxSizeCheck == ''? $this->defaultOpenFileSize : 0;
+
+            // get payload set
+            $malwarePayloadSet = file_get_contents($this->malwareScanPayload); 
+            $malwarePayloadSet = json_decode($malwarePayloadSet, TRUE);
+            
+            if (is_dir(trim($dirScan))) {
+
+                if ($scanPayload !== '') {
+                    $scanPayloadArr = explode(';', $scanPayload);
+                    $scanPayloadArr = is_array($scanPayloadArr) ? $scanPayloadArr : [];
+                } else {
+                    $scanPayloadArr = [];
+                }
+
+                /*
+                    @return
+                     item   =>  string
+                     type   =>  string
+                */
+                $getAllFiles = $this->fileScan($dirScan, $scanPayloadArr, 'file');
+                if ($getAllFiles) {
+
+                    $tempScanning = [];
+                    $tempScanning['last_scan'] = date("H:i d-m-Y");
+                    $tempScanning['time_start'] = time();
+
+                    function check_payload_scan($getFileContentClean, $payloadListItem, $filePath){
+                        $checkPosString = $getFileContentClean !== '' ?
+                            strpos($getFileContentClean, $payloadListItem['name']) : null;
+                        if ($checkPosString !== false && $checkPosString !== null) {
+
+                            $payloadStrLen = strlen($getFileContentClean);
+                            $strLenMax  = $checkPosString + 70;
+                            $strLenMax2 = $strLenMax < $payloadStrLen ? 70 : 
+                                ($strLenMax - 20 < $payloadStrLen ? 49 : 
+                                    ($strLenMax - 40 < $payloadStrLen ? 29 : 
+                                        ($strLenMax - 60 < $payloadStrLen ? 9 : 2)));
+
+                            $shortCode = substr($getFileContentClean, $checkPosString, $strLenMax2);
+                            
+                            $tempCheckByPayload = [
+                                'level'         =>  $payloadListItem['level'],
+                                'name'          =>  $payloadListItem['name'],
+                                'desc'          =>  $payloadListItem['description'],
+                                'pos'           =>  $checkPosString,
+                                'short_script'  =>  $shortCode 
+                            ];
+
+                            return $tempCheckByPayload;
+                        } else {
+                            return null;
+                        }
+                    }
+
+                    $tempScanning['scan_item']  = [];
+
+                    // checking files
+                    foreach ($getAllFiles as $itemKey => $itemValue) {
+
+                        $filePath  = $itemValue['item'];
+
+                        // check file  exists & size
+                        if (file_exists($filePath)) {
+                            
+                            $fileSizeSet = filesize($filePath);
+
+                            if ($fileSizeSet <= $maxSizeCheck) {
+                                
+                                $getFileContentsOrig = file_get_contents($filePath);
+                                $getFileContentClean = strtolower($this->cleanAll($getFileContentsOrig));
+                                
+                                // checking file using payload
+                                $resultsScanning = [];
+                                foreach ($malwarePayloadSet as $payloadKey => $payloadItem) {
+                                
+                                    foreach ($payloadItem['item'] as $payloadKeyItem => $payloadListItem) {
+
+                                        $scanNamePayload = $payloadListItem['name'];
+                                        $scanDescPayload = $payloadListItem['description'];
+                                        $scanLvlPayload = $payloadListItem['level'];
+                                        $scanPermPayload = $payloadListItem['perm'];
+
+                                        /* 
+                                            #set scan level for user
+                                            Lv1 = Scan Normal
+                                            Lv2 = Scan Normal - Warning
+                                            Lv3 = Scan Warning
+                                            Lv4 = Scan Warning - Risk
+                                            Lv5 = Scan Risk
+                                            Lv6 = Scan Normal - Warning - Risk
+                                        */
+                                        $lvlScan_1 =  $scanLvlPayload == 'normal' ?
+                                            true : false;
+                                        $lvlScan_2 =  $scanLvlPayload == 'normal' || $scanLvlPayload == 'warning' ? 
+                                            true : false;
+                                        $lvlScan_3 =  $scanLvlPayload == 'warning' ? 
+                                            true : false;
+                                        $lvlScan_4 =  $scanLvlPayload == 'warning' || $scanLvlPayload == 'risk' ? 
+                                            true : false;
+                                        $lvlScan_5 =  $scanLvlPayload == 'risk' ?  
+                                            true : false;
+                                        $lvlScan_6 =  $scanLvlPayload == 'normal' || $scanLvlPayload == 'warning' || $scanLvlPayload == 'risk' ? 
+                                            true : false;
+
+                                        if ($lvlScanUser == 1) {
+                                            if ($lvlScan_1) {
+                                                $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
+                                                if ($getValCheck !== null) {
+                                                    $resultsScanning[] = $getValCheck;
+                                                }
+                                            } else {
+                                                continue;
+                                            }
+                                        } elseif ($lvlScanUser == 2) {
+                                            if ($lvlScan_2) {
+                                                $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
+                                                if ($getValCheck !== null) {
+                                                    $resultsScanning[] = $getValCheck;
+                                                }
+                                            } else {
+                                                continue;
+                                            }
+                                        } elseif ($lvlScanUser == 3) {
+                                            if ($lvlScan_3) {
+                                                $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
+                                                if ($getValCheck !== null) {
+                                                    $resultsScanning[] = $getValCheck;
+                                                }
+                                            } else {
+                                                continue;
+                                            }
+                                        } elseif ($lvlScanUser == 4) {
+                                            if ($lvlScan_4) {
+                                                $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
+                                                if ($getValCheck !== null) {
+                                                    $resultsScanning[] = $getValCheck;
+                                                }
+                                            } else {
+                                                continue;
+                                            }
+                                        } elseif ($lvlScanUser == 5) {
+                                            if ($lvlScan_5) {
+                                                $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
+                                                if ($getValCheck !== null) {
+                                                    $resultsScanning[] = $getValCheck;
+                                                }
+                                            } else {
+                                                continue;
+                                            }
+                                        } else {
+                                            $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
+                                            if ($getValCheck !== null) {
+                                                $resultsScanning[] = $getValCheck;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                $tempScanning['scan_item'][] = [
+                                    'file_path'     =>  $filePath,
+                                    'item_result'   =>  $resultsScanning
+                                ];
+
+                            } else {
+                                continue;
+                            }
+                        } else {
+                            continue;
+                        }
+                    }
+
+                    $tempScanning['time_end'] = time();
+                    $tempScanning['total_time_execute'] = $tempScanning['time_end'] - $tempScanning['time_start'];
+
+                    
+                    return $tempScanning;
+
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+
+        // Something
+    }
 
 
     // ins system
@@ -1416,7 +1748,7 @@
                                             <i class="fa-solid fa-shield-virus text-white tools-icon"></i>
                                         </div>
                                         <div class="col-9 my-auto mx-auto">
-                                            <div class="tools-name">Scan Malware & Permission (Coming Soon)</div>
+                                            <div class="tools-name">Scan Malware & Permission</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1678,22 +2010,33 @@
                             <div class="card-header">
                                 
                                 <div class="row">
-                                    <div class="col-md-2">
-                                    </div>
-                                    <div class="col-md-10 text-right">
-                                        <button type="button" id="newFileFileMgr" onclick="openPopup('#popup-upload');" class="btn bg-primary text-white">
+                                    <div class="col-md-12 text-right">
+
+                                        <button type="button" id="clickBtncopyFileMgr" onclick="openPopup('#popup-copy');" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-copy"></i> Copy
+                                        </button>
+
+                                        <button type="button" id="clickBtnRenameFileMgr" onclick="openPopup('#popup-rename');" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-pen"></i> Rename
+                                        </button>
+
+                                        <button type="button" id="clickBtnMoveFileMgr" onclick="openPopup('#popup-move');" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-right-left"></i> Move
+                                        </button>
+
+                                        <button type="button" id="clickBtnNewFileFileMgr" onclick="openPopup('#popup-upload');" class="btn bg-primary text-white">
                                             <i class="fa-solid fa-upload"></i> Upload
                                         </button>
 
-                                        <button type="button" id="newFileFileMgr" onclick="openPopup('#popup-new-file');" class="btn bg-primary text-white">
+                                        <button type="button" id="clickBtnNewFileFileMgr" onclick="openPopup('#popup-new-file');" class="btn bg-primary text-white">
                                             <i class="fa-solid fa-file-circle-plus"></i> New File
                                         </button>
 
-                                        <button type="button" id="newDirFileMgr" onclick="openPopup('#popup-new-dir');" class="btn bg-primary text-white">
+                                        <button type="button" id="clickBtnNewDirFileMgr" onclick="openPopup('#popup-new-dir');" class="btn bg-primary text-white">
                                             <i class="fa-solid fa-folder-plus"></i> New Folder
                                         </button>
 
-                                        <button type="button" id="clearFileMgr" onclick="removeLogFileMgrAct('#file-mgr-log-act');" class="btn bg-primary text-white">
+                                        <button type="button" id="clickBtnClearFileMgr" onclick="removeLogFileMgrAct('#file-mgr-log-act');" class="btn bg-primary text-white">
                                             Clear Log Action
                                         </button>
                                         <button type="button" id="refreshFileMgr" onclick="setLoadFileMgr();" class="btn bg-primary text-white">
@@ -1829,6 +2172,130 @@
                                     </div>
                                 </div>
 
+                                <div class="box-popup" id="popup-rename">
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div class="card card-default bg-prim bordered">
+                                                <div class="card-header">
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <h4>Rename</h4>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <h4>
+                                                                <button class="close bg-prim text-white" onclick="closePopup('#popup-rename');">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="newRenameFileMgr" action="#" method="post">   
+                                                         
+                                                            <label>Before Rename Location (Ex: ./folder/name/)</label>  
+                                                            <input type="text" class="form-control text-white" id="loc_rename" name="loc_rename" required=""/>
+                                                            <br>
+                                                            <div><label>Current Dir : <?= @getcwd() . DIRECTORY_SEPARATOR; ?></label></div> 
+                                                            <label>After Rename Location (Ex: new-name)</label> 
+                                                            <input name="loc_rename_new" id="loc_rename_new" class="form-control text-white" type="text" required />  
+                                                            <br/>
+                                                            <input type="submit" id="btnRenameFileMgr" class="btn btn-primary" value="Rename" />  
+                                                    </form> 
+                                                </div>
+                                                <div class="card-footer box-rename-file-mgr">
+                                                    <div class="rename-file-mgr-log"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
+
+
+                                <div class="box-popup" id="popup-copy">
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div class="card card-default bg-prim bordered">
+                                                <div class="card-header">
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <h4>Copy</h4>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <h4>
+                                                                <button class="close bg-prim text-white" onclick="closePopup('#popup-copy');">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="newCopyFileMgr" action="#" method="post">   
+                                                         
+                                                            <label>Before Copy Location (Ex: ./folder/name/)</label>  
+                                                            <input type="text" class="form-control text-white" id="loc_copy" name="loc_copy" required=""/>
+                                                            <br>
+                                                            <div><label>Current Dir : <?= @getcwd() . DIRECTORY_SEPARATOR; ?></label></div> 
+                                                            <label>After Copy Location (Ex: new-name)</label> 
+                                                            <input name="loc_copy_new" id="loc_copy_new" class="form-control text-white" type="text" required />  
+                                                            <br/>
+                                                            <input type="submit" id="btnCopyFileMgr" class="btn btn-primary" value="Copy" />  
+                                                    </form> 
+                                                </div>
+                                                <div class="card-footer box-copy-file-mgr">
+                                                    <div class="copy-file-mgr-log"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
+
+                                <div class="box-popup" id="popup-move">
+                                    <div class="row">
+                                        <div class="col-md-3"></div>
+                                        <div class="col-md-6">
+                                            <div class="card card-default bg-prim bordered">
+                                                <div class="card-header">
+                                                    <div class="row">
+                                                        <div class="col-10">
+                                                            <h4>Move</h4>
+                                                        </div>
+                                                        <div class="col-2">
+                                                            <h4>
+                                                                <button class="close bg-prim text-white" onclick="closePopup('#popup-move');">
+                                                                    <i class="fa-solid fa-xmark"></i>
+                                                                </button>
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body">
+                                                    <form id="newMoveFileMgr" action="#" method="post">   
+                                                         
+                                                            <label>Before Move Location (Ex: ./folder/name/ OR ./old/name.php)</label>  
+                                                            <input type="text" class="form-control text-white" id="loc_move" name="loc_move" required=""/>
+                                                            <br>
+                                                            <div><label>Current Dir : <?= @getcwd() . DIRECTORY_SEPARATOR; ?></label></div> 
+                                                            <label>After Move Location (Ex: ./new/oldname/ OR ./new/oldname.php)</label> 
+                                                            <input name="loc_move_new" id="loc_move_new" class="form-control text-white" type="text" required />  
+                                                            <br/>
+                                                            <input type="submit" id="btnMoveFileMgr" class="btn btn-primary" value="Move" />  
+                                                    </form> 
+                                                </div>
+                                                <div class="card-footer box-move-file-mgr">
+                                                    <div class="move-file-mgr-log"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3"></div>
+                                    </div>
+                                </div>
+
                             </div>
                             <div class="card-body box-file-mgr-act min-max-max scroll-active">
                                 <div id="file-mgr-log-act">No Action.</div>
@@ -1895,6 +2362,64 @@
                             <div class="card-footer">
                                 <textarea name="" id="textEditor"class="fixed-full-height scroll-active"></textarea>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <?php } elseif($webTools->pageActive() == 'malware-perm-scan'){ ?>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-header">
+                                <h4>Scan Malware & Permission</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card elem-content bg-prim text-white">
+                            <div class="card-header">
+                                
+                                <div class="row">
+                                    <div class="col-md-3">
+
+                                    </div>
+                                    <div class="col-md-9 text-right">
+                                        <button type="button" id="refreshTextEditor" onclick="autoStartTextEditor();" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                        </button>
+                                        <button type="button" id="clearTextEditor" onclick="removeLogTextEditor('#text-editor-log');" class="btn bg-primary text-white">
+                                            Clear Log Action
+                                        </button>
+                                        <button type="button" id="saveTextEditor" onclick="saveTextEditor();" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-floppy-disk"></i> Save
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="separator-sec"></div>
+
+                                <form id="text-editor-input" action="" method="post">
+                                    <div class="input-group mb-3 bg-transparent">
+                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <div class="input-group-append">
+                                            <button id="submitTextEditor" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="card-body box-text-editor min-max-height scroll-active">
+                                <div id="text-editor-log">No Action.</div>
+                                <div class="separator-sec"></div>
+                            </div>
+                            <div class="card-footer">
+                            
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -2250,8 +2775,203 @@
             }else{
                 $('.upload-file-mgr-log').html('<div class="box-msg text-bold badge badge-danger text-white">Please select file!</div>'); 
             }
-        });  
+        }); 
     });  
+
+    // rename-file-mgr-log
+    // box-rename-file-mgr
+    // loc_rename
+    // loc_rename_new
+    // btnRenameFileMgr
+    // newRenameFileMgr
+    $('#newRenameFileMgr').on('submit', function(e){  
+        
+        e.preventDefault();  
+
+        // validation inputs
+        var loc_rename = $('#loc_rename').val().trim();
+        var loc_rename_new = $('#loc_rename_new').val().trim();
+
+        if (loc_rename !== '' && loc_rename_new !== '') {
+            $('.rename-file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingRenameFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Uploading...</div></center></div>');
+            $('#btnRenameFileMgr').attr("disabled", true);
+
+            $.ajax({  
+                url: "<?= $webTools->baseLink; ?>?page=file-mgr-rename-proc",  
+                type: "POST",  
+                data: new FormData(this),
+                contentType: false,  
+                processData: false, 
+                success: function(data){
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingRenameFileMgr');
+                    $('#btnRenameFileMgr').attr("disabled", false);
+                    $('.rename-file-mgr-log').html('<div class="box-msg">'+ data +'</div>'); 
+                    setLoadFileMgr();
+                
+                },
+                error: function (e) {
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingRenameFileMgr');
+                    $('#btnRenameFileMgr').attr("disabled", false);
+                    $('.rename-file-mgr-log').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                    setLoadFileMgr();
+                } 
+            }); 
+        }else{
+            $('.rename-file-mgr-log').html('<div class="box-msg text-bold badge badge-danger text-white">Please insert all form!</div>'); 
+        }
+    }); 
+
+
+    // copy-file-mgr-log
+    // box-copy-file-mgr
+    // loc_copy
+    // loc_copy_new
+    // btnCopyFileMgr
+    // newCopyFileMgr
+    $('#newCopyFileMgr').on('submit', function(e){  
+        
+        e.preventDefault();  
+
+        // validation inputs
+        var loc_rename = $('#loc_copy').val().trim();
+        var loc_rename_new = $('#loc_copy_new').val().trim();
+
+        if (loc_rename !== '' && loc_rename_new !== '') {
+            $('.copy-file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingCopyFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Uploading...</div></center></div>');
+            $('#btnCopyFileMgr').attr("disabled", true);
+
+            $.ajax({  
+                url: "<?= $webTools->baseLink; ?>?page=file-mgr-copy-proc",  
+                type: "POST",  
+                data: new FormData(this),
+                contentType: false,  
+                processData: false, 
+                success: function(data){
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingCopyFileMgr');
+                    $('#btnCopyFileMgr').attr("disabled", false);
+                    $('.copy-file-mgr-log').html('<div class="box-msg">'+ data +'</div>'); 
+                    setLoadFileMgr();
+                
+                },
+                error: function (e) {
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingCopyFileMgr');
+                    $('#btnCopyFileMgr').attr("disabled", false);
+                    $('.copy-file-mgr-log').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                    setLoadFileMgr();
+                } 
+            }); 
+        }else{
+            $('.copy-file-mgr-log').html('<div class="box-msg text-bold badge badge-danger text-white">Please insert all form!</div>'); 
+        }
+    });
+
+    // move-file-mgr-log
+    // box-move-file-mgr
+    // loc_move
+    // loc_move_new
+    // btnMoveFileMgr
+    // newMoveFileMgr
+    $('#newMoveFileMgr').on('submit', function(e){  
+        
+        e.preventDefault();  
+
+        // validation inputs
+        var loc_move = $('#loc_move').val().trim();
+        var loc_move_new = $('#loc_move_new').val().trim();
+
+        if (loc_move !== '' && loc_move_new !== '') {
+            $('.move-file-mgr-log').prepend('<div class="box-msg d-block"><center><div class="loadingMoveFileMgr"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Uploading...</div></center></div>');
+            $('#btnMoveFileMgr').attr("disabled", true);
+
+            $.ajax({  
+                url: "<?= $webTools->baseLink; ?>?page=file-mgr-move-proc",  
+                type: "POST",  
+                data: new FormData(this),
+                contentType: false,  
+                processData: false, 
+                success: function(data){
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingMoveFileMgr');
+                    $('#btnMoveFileMgr').attr("disabled", false);
+                    $('.move-file-mgr-log').html('<div class="box-msg">'+ data +'</div>'); 
+                    setLoadFileMgr();
+                
+                },
+                error: function (e) {
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingMoveFileMgr');
+                    $('#btnMoveFileMgr').attr("disabled", false);
+                    $('.move-file-mgr-log').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                    setLoadFileMgr();
+                } 
+            }); 
+        }else{
+            $('.copy-file-mgr-log').html('<div class="box-msg text-bold badge badge-danger text-white">Please insert all form!</div>'); 
+        }
+    });
+        
+       
+    
+    //file-mgr-rename-proc 
+    //rename_file_mgr 
+    function rename_file_mgr(elemIdList = null, renameItem = null, typeItem = null){
+        if(typeItem == 'file'){
+            openPopup('#popup-rename'); 
+            $('#loc_rename').val(atob(renameItem));
+            $('#loc_rename_new').val('');
+            
+        }else if(typeItem == 'directory'){
+            openPopup('#popup-rename'); 
+            $('#loc_rename').val(atob(renameItem));
+            $('#loc_rename_new').val('');
+        } else {
+            openPopup('#popup-rename'); 
+            $('#loc_rename').val('');
+            $('#loc_rename_new').val('');
+        }
+    }
+
+    //file-mgr-copy-proc 
+    //copy_file_mgr 
+    function copy_file_mgr(elemIdList = null, renameItem = null, typeItem = null){
+        if(typeItem == 'file'){
+            openPopup('#popup-copy'); 
+            $('#loc_copy').val(atob(renameItem));
+            $('#loc_copy_new').val('');
+            
+        }else if(typeItem == 'directory'){
+            openPopup('#popup-copy'); 
+            $('#loc_copy').val(atob(renameItem));
+            $('#loc_copy_new').val('');
+        } else {
+            openPopup('#popup-copy'); 
+            $('#loc_copy').val('');
+            $('#loc_copy_new').val('');
+        }
+    }
+
+    //file-mgr-move-proc 
+    //move_file_mgr 
+    function move_file_mgr(elemIdList = null, renameItem = null, typeItem = null){
+        if(typeItem == 'file'){
+            openPopup('#popup-move'); 
+            $('#loc_move').val(atob(renameItem));
+            $('#loc_move_new').val('');
+            
+        }else if(typeItem == 'directory'){
+            openPopup('#popup-move'); 
+            $('#loc_move').val(atob(renameItem));
+            $('#loc_move_new').val('');
+        } else {
+            openPopup('#popup-move'); 
+            $('#loc_move').val('');
+            $('#loc_move_new').val('');
+        }
+    }
 
     function loadMgrByItem(dataSet = null){
         setValueTo('#scan_dir_mgr', dataSet);
@@ -2838,7 +3558,14 @@
                             // skip dots
                             if (substr($valueItem['item_path'], -1) !== "." && substr($valueItem['item_path'], -2) !== "..") {
 
-                                echo'<span class="badge badge-success" onclick="zip_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Zip Arcive</span>
+                                echo'
+                                <span class="badge badge-dark" onclick="rename_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\', \'directory\');">rename</span>
+                                 | 
+                                <span class="badge bg-sec text-white" onclick="copy_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\', \'directory\');">Copy</span>
+                                 | 
+                                <span class="badge bg-sec text-white" onclick="move_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\', \'directory\');">Move</span>
+                                 | 
+                                <span class="badge badge-success" onclick="zip_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Zip Arcive</span>
                                  | 
                                 <span class="badge badge-danger" onclick="delete_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Delete</span> | 
                                 ';
@@ -2874,6 +3601,12 @@
                                     <a href="'. $webTools->baseLink .'?page=download&file='. $valueItem['item_path'] .'" target="_blank">
                                         <span class="badge badge-success">Download</span>
                                     </a>
+                                     | 
+                                     <span class="badge badge-dark" onclick="rename_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\', \'file\');">rename</span>
+                                     |
+                                     <span class="badge bg-sec text-white" onclick="copy_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\', \'file\');">Copy</span>
+                                     | 
+                                     <span class="badge bg-sec text-white" onclick="move_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\', \'file\');">Move</span>
                                      | 
                                      <a href="'. $webTools->baseLink .'?page=text-editor&file='. $valueItem['item_path'] .'" target="_blank">
                                         <span class="badge badge-primary">Open</span>
@@ -3099,9 +3832,79 @@
                 }
 
                 echo "</div>";
+            } elseif($pageShow == 'file-mgr-rename-proc'){
+                
+                $beforeLoc = trim($_POST['loc_rename']);
+                $afterLoc = trim($_POST['loc_rename_new']);
+                
+                $renameAction = $webTools->renameFF($beforeLoc, $afterLoc);
+
+                echo "<div class='badge badge-warning badge-custom-notice-term'>[Rename item In $beforeLoc] ". date('H:i d-m-Y') ."</div>";
+                if($renameAction){
+                    
+                    echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>";
+                    echo '<div>New Name: '. $afterLoc . ' 
+                    <div class="badge badge-success text-white">Success</div>
+                    </div>';
+                    echo "</div>";
+
+                }else{
+                    echo "<div><div class='badge badge-danger text-white'>Failed rename item in [$beforeLoc] [$afterLoc].</div></div>";
+                }
+
+                echo "</div>";
+
+            } elseif($pageShow == 'file-mgr-copy-proc'){
+                
+                $beforeLoc = trim($_POST['loc_copy']);
+                $afterLoc = trim($_POST['loc_copy_new']);
+                
+                $copyAction = $webTools->copyFF($beforeLoc, $afterLoc);
+
+                echo "<div class='badge badge-warning badge-custom-notice-term'>[copy item In $beforeLoc] ". date('H:i d-m-Y') ."</div>";
+                if($copyAction){
+                    
+                    echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>";
+                    echo '<div>Copy To: '. $afterLoc . ' 
+                    <div class="badge badge-success text-white">Success</div>
+                    </div>';
+                    echo "</div>";
+
+                }else{
+                    echo "<div><div class='badge badge-danger text-white'>Failed copy item in [$beforeLoc] [$afterLoc].</div></div>";
+                }
+
+                echo "</div>";
+
+            } elseif($pageShow == 'file-mgr-move-proc'){
+                
+                $beforeLoc = trim($_POST['loc_move']);
+                $afterLoc = trim($_POST['loc_move_new']);
+                
+                $moveAction = $webTools->renameFF($beforeLoc, $afterLoc);
+
+                echo "<div class='badge badge-warning badge-custom-notice-term'>[Move item In $beforeLoc] ". date('H:i d-m-Y') ."</div>";
+                if($moveAction){
+                    
+                    echo "<div style='border-left: 2px dotted grey; padding-left: 10px;'>";
+                    echo '<div>Move To: '. $afterLoc . ' 
+                    <div class="badge badge-success text-white">Success</div>
+                    </div>';
+                    echo "</div>";
+
+                }else{
+                    echo "<div><div class='badge badge-danger text-white'>Failed moving item in [$beforeLoc] [$afterLoc].</div></div>";
+                }
+
+                echo "</div>";
+
+            } elseif($pageShow == 'malware-scan-proc'){
+                $a = $webTools->malwareScan('./', '.php', null, 6, null);
+                
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode($a, JSON_PRETTY_PRINT);
             }
-            
-            
+
             else {
                 dashboardPage($webTools);
             }
