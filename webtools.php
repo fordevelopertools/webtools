@@ -1238,10 +1238,17 @@
                                     }
                                 }
 
-                                $tempScanning['scan_item'][] = [
-                                    'file_path'     =>  $filePath,
-                                    'item_result'   =>  $resultsScanning
-                                ];
+                                if (is_array($resultsScanning) && count($resultsScanning) > 0) {
+                                    $tempScanning['scan_item'][] = [
+                                        'file_path'     =>  $filePath,
+                                        'item_result'   =>  $resultsScanning
+                                    ];
+                                } else {
+                                    continue;
+                                }
+                                
+
+                                
 
                             } else {
                                 continue;
@@ -3899,10 +3906,10 @@
                 echo "</div>";
 
             } elseif($pageShow == 'malware-scan-proc'){
-                $a = $webTools->malwareScan('./', '.php', null, 6, null);
+                $a = $webTools->malwareScan('C:\laragon\www\games', '.php', null, 6, null);
                 
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode($a, JSON_PRETTY_PRINT);
+                print_r($a);
+
             }
 
             else {
