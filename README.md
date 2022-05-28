@@ -7,7 +7,7 @@ Upload it to the destination server and you can now access it via your link path
 
 Latest version now 1.4 beta
 
-
+Default Password : root!
 
 the latest view of the current tools:
 

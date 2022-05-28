@@ -3,9 +3,9 @@
     /* 
         - CREATE BY FORDEVELOPERTOOLS WEB DEVELOPER TEAM
         - AUTHOR: NUR SHODIK ASSALAM
-        - VERSION  1.4 BETA
+        - VERSION  1.5
         - RELEASE 5-20-2022
-        - UPDATE 5-26-2022
+        - UPDATE 5-28-2022
     */
 
     // started First
