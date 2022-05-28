@@ -1137,6 +1137,7 @@
                                 'name'          =>  $payloadListItem['name'],
                                 'desc'          =>  $payloadListItem['description'],
                                 'pos'           =>  $checkPosString,
+                                'permission'    =>  $payloadListItem['perm'],
                                 'short_script'  =>  $shortCode 
                             ];
 
@@ -1195,6 +1196,8 @@
                                             true : false;
                                         $lvlScan_6 =  $scanLvlPayload == 'normal' || $scanLvlPayload == 'warning' || $scanLvlPayload == 'risk' ? 
                                             true : false;
+                                        $lvlScan_7 =  $scanLvlPayload == 'normal' || $scanLvlPayload == 'risk' ? 
+                                            true : false;
 
                                         if ($lvlScanUser == 1) {
                                             if ($lvlScan_1) {
@@ -1234,6 +1237,15 @@
                                             }
                                         } elseif ($lvlScanUser == 5) {
                                             if ($lvlScan_5) {
+                                                $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
+                                                if ($getValCheck !== null) {
+                                                    $resultsScanning[] = $getValCheck;
+                                                }
+                                            } else {
+                                                continue;
+                                            }
+                                        } elseif ($lvlScanUser == 7) {
+                                            if ($lvlScan_7) {
                                                 $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
                                                 if ($getValCheck !== null) {
                                                     $resultsScanning[] = $getValCheck;
@@ -1702,6 +1714,10 @@
 
         .indicator-color-six {
             background-color: #2b3cd0;
+        }
+
+        .indicator-color-seven {
+            background-color: #8c43b8;
         }
         
         .scan-info-box {
@@ -2538,6 +2554,7 @@
                                         <option value="4">Level 4</option>
                                         <option value="5">Level 5</option>
                                         <option value="6">Level 6</option>
+                                        <option value="7">Level 7</option>
                                     </select>
 
                                     <select class="form-control" name="show_detail" id="show_detail" style="color: grey;" required/>
@@ -2591,6 +2608,10 @@
                                             <div class="col-12 pt-2 pb-2">
                                                 <div class="indicator-color indicator-color-six"></div> 
                                                 Level 6 Scan : Normal - Warning - Risk
+                                            </div>
+                                            <div class="col-12 pt-2 pb-2">
+                                                <div class="indicator-color indicator-color-seven"></div> 
+                                                Level 7 Scan : Normal - Risk
                                             </div>
                                         </div>
                                     </div>
@@ -4271,7 +4292,7 @@
                         <div class="row">
                             <div class="col-md-9">
                                 <div class="sec-action-scan">
-                                    '. $valueItemResults['file_path']. '
+                                   <strong>'. $xCounter. ')</strong> '. $valueItemResults['file_path']. '
                                 </div>
                             </div>
                             <div class="col-md-3 text-right">
@@ -4330,6 +4351,13 @@
                                     <strong>Level: </strong> <div class="badge badge-'. $setColorBg .' text-white">'. $valueItemScan['level'] .'</div>
                                 </div>
                                 ';
+
+                                echo '
+                                <div>
+                                    <strong>Permission: </strong>'. $valueItemScan['permission'] .'
+                                </div>
+                                ';
+                                
 
                                 echo "</div>";
                             }
