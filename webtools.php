@@ -9,16 +9,17 @@
     */
 
     // started First
-    ini_set('display_errors', 1); 
-    ini_set('display_startup_errors', 1); 
-    error_reporting(E_ALL);
+    // set display error : default not show
+    // ini_set('display_errors', 1); 
+    // ini_set('display_startup_errors', 1); 
+    // error_reporting(E_ALL);
 
     session_start();
     date_default_timezone_set('asia/jakarta');
 
     // auto create directory for log, session and any.
     $autoCreateDirectory = './fordevelopertools_app';
-    $autoCreateScan = 'fordevelopertools_app/scan';
+    $autoCreateScan = './fordevelopertools_app/scan';
     if (!is_dir($autoCreateDirectory)) {
         @mkdir($autoCreateDirectory);
     }
@@ -39,11 +40,13 @@
         public $dirLoc = __DIR__;
         public $fileLoc = __FILE__;
         public $baseLink = './webtools.php';
+        
 
         // scan default config
         public $defaultExCheck = '.php;.phtml;.php3;.php4;.php5;.phps;.html;.css;.js';
         public $defaultOpenFileSize = 1048576; // 2MB
         public $malwareScanPayload = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/malware-perm-scan-payload/payload.json';
+        public $formatLog = '.fdplog';
 
         
 
@@ -1117,6 +1120,7 @@
                     $tempScanning = [];
                     $tempScanning['last_scan'] = date("H:i d-m-Y");
                     $tempScanning['time_start'] = time();
+                    $tempScanning['scan_path'] = $dirScan;
 
                     function check_payload_scan($getFileContentClean, $payloadListItem, $filePath){
                         $checkPosString = $getFileContentClean !== '' ?
@@ -2593,10 +2597,10 @@
                                                         <div class="indicator-color indicator-color-one"></div> 0-30
                                                     </div>
                                                     <div class="col-3">
-                                                        <div class="indicator-color indicator-color-two"></div>31-75
+                                                        <div class="indicator-color indicator-color-two"></div>31-79
                                                     </div>
                                                     <div class="col-3">
-                                                        <div class="indicator-color indicator-color-three"></div>76-85
+                                                        <div class="indicator-color indicator-color-three"></div>80-85
                                                     </div>
                                                     <div class="col-3">
                                                         <div class="indicator-color indicator-color-five"></div>86-100
@@ -2643,47 +2647,18 @@
                                                         
                                                     </div>
                                                     <div class="col-md-6">
-                                                        <strong class="text-scan-header">RECENT SCAN RESULTS</strong>
+                                                        <div class="row">
+                                                            <div class="col-10">
+                                                                <strong class="text-scan-header">RECENT SCAN RESULTS</strong>
+                                                            </div>
+                                                            <div class="col-2 text-right">
+                                                            <i onclick="malwareScanLog();" class="fa-solid fa-arrows-rotate text-white"></i>
+                                                            </div>
+                                                        </div>
+                        
                                                         <div class="separator-sec"></div>
                                                         <div class="scan-info-box scroll-active">
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div><div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div><div class="p3">
-                                                                a
-                                                            </div>
-                                                            <div class="p3">
-                                                                a
-                                                            </div>
-
+                                                            <div class="item-scan-logs"></div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -3391,7 +3366,31 @@
         // sheet.insertRule(cssSet);
     }
 
-    function malwareScanStart(){
+    function malwareScanLog(){
+
+        $('.item-scan-logs').html('<div class="box-msg d-block"><center><div class="loadingLogMalwareScan"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Getting Logs...</div></center></div>');
+        
+        $.ajax({
+            type: 'POST',
+            url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-log",
+            dataType: 'html',
+            cache: false, 
+            data: {},
+            success: function(data){
+                removeElem('.loadingLogMalwareScan');
+                $('.item-scan-logs').html(data);
+            },
+            error: function (e) {
+                removeElem('.loadingLogMalwareScan');
+                $('.item-scan-logs').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+
+            }
+        });
+    }
+
+    malwareScanLog();
+
+    function malwareScanStart(fileLog = null, urlSet = null){
 
         var dir_for_scan_malware = $('#dir_for_scan_malware').val();
         var scan_level = $('#scan_level').val();
@@ -3415,10 +3414,22 @@
             // disable input
             $('#dir_for_scan_malware').attr("disabled", true);
             $('#scan_level').attr("disabled", true);
+            $('#scan_limit_size').attr("disabled", true);
+            $('#scan_regex_search').attr("disabled", true);
+            $('#show_detail').attr("disabled", true);
+
+            // check if scan or open log
+            if (fileLog !== null && urlSet !== null) {
+                var urlSetReq  = 'open-log';
+                var setFileLog = atob(fileLog.trim());
+            } else {
+                var urlSetReq  = 'scan';
+                var setFileLog = '';
+            }
             
             $.ajax({
                 type: 'POST',
-                url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-proc&action=scan",
+                url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-proc&action=" + urlSetReq,
                 dataType: 'html',
                 cache: false, 
                 data: {
@@ -3426,12 +3437,16 @@
                     scan_level: scan_level,
                     scan_regex_search: scan_regex_search,
                     scan_limit_size: scan_limit_size,
-                    show_detail: show_detail
+                    show_detail: show_detail,
+                    set_file_log: setFileLog
                 },
                 success: function(data){
                     // disable input
                     $('#dir_for_scan_malware').attr("disabled", false);
                     $('#scan_level').attr("disabled", false);
+                    $('#scan_limit_size').attr("disabled", false);
+                    $('#scan_regex_search').attr("disabled", false);
+                    $('#show_detail').attr("disabled", false);
 
                     removeElem('.loadingLogMalware');
                     $('#malwareParamStart').html('0');
@@ -3446,11 +3461,16 @@
                         $('#text-scan-now').html('SCAN AGAIN?');
                     }, 1000);
 
+                    malwareScanLog();
+
                 },
                 error: function (e) {
                     // disable input
                     $('#dir_for_scan_malware').attr("disabled", false);
                     $('#scan_level').attr("disabled", false);
+                    $('#scan_limit_size').attr("disabled", false);
+                    $('#scan_regex_search').attr("disabled", false);
+                    $('#show_detail').attr("disabled", false);
 
                     removeElem('.loadingLogMalware');
                     $('#malwareParamStart').html('0');
@@ -3463,6 +3483,8 @@
                     setTimeout(() => {
                         $('#text-scan-now').html('SCAN AGAIN?');
                     }, 1000);
+
+                    malwareScanLog();
 
                 }
             });
@@ -4291,8 +4313,13 @@
                 $scan_regex_search = trim($_POST['scan_regex_search']);
                 $scan_limit_size = trim($_POST['scan_limit_size']);
                 $showDetail = trim($_POST['show_detail']);
+                $set_file_log = trim($_POST['set_file_log']);
+                $checkReqLog = isset($_GET['action']) && trim($_GET['action']) !== 'scan' ? true: false;
+                
+                
 
                 $timeSetID = date('H:i d-m-Y') ." - ". time();
+                $forSetFileLog = date('H.i_d-m-Y') ."-". time();
 
                 $setView = '';
 
@@ -4313,11 +4340,26 @@
                 [total_time_execute] => 0
                 */
 
-                $setView .= "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
-
-                $getResultScan = $webTools->malwareScan($dir_for_scan_malware, $scan_regex_search, $scan_limit_size, $scan_level, null);
+                if (!$checkReqLog) {
+                    $getResultScan = $webTools->malwareScan($dir_for_scan_malware, $scan_regex_search, $scan_limit_size, $scan_level, null);
+                    $setView .= "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
+                } else {
+                    $getResultScan = @file_get_contents($set_file_log);
+                    $getResultScan = json_decode($getResultScan, true);
+                    $setView .= "<div class='badge badge-primary badge-custom-notice-term'>[Open Log Scan ". $getResultScan['scan_path'] ."][Lvl $scan_level] Last Scan ". $getResultScan['last_scan'] ."</div>";
+                }
 
                 if ($getResultScan && is_array($getResultScan) && count($getResultScan) > 0) {
+
+                    if (!$checkReqLog) {
+                        // create a file log json format
+                        if (is_dir($autoCreateScan)) {
+                            $setFilePathLog = $autoCreateScan . DIRECTORY_SEPARATOR . $forSetFileLog . $webTools->formatLog;
+                            //create file log
+                            $webTools->createFile($setFilePathLog, 'w', json_encode($getResultScan));
+                        }
+                    }
+
                     $xCounter = 1;
                     foreach ($getResultScan['scan_item'] as $keyItemResults => $valueItemResults) {
 
@@ -4405,8 +4447,8 @@
                             five 80-100
                         */
                         $setNoticePotMalware  = $potential_malware <= 30 ? 'one' : 
-                            ($potential_malware > 30 && $potential_malware <= 75 ? 'two' : 
-                                ($potential_malware > 76 && $potential_malware <= 85 ? 'three' : 'five'));
+                            ($potential_malware > 30 && $potential_malware <= 79 ? 'two' : 
+                                ($potential_malware >= 80 && $potential_malware <= 85 ? 'three' : 'five'));
 
                         $setNoticeViewPotMalware = '<div class="indicator-color indicator-color-'. $setNoticePotMalware .'"></div> '. $potential_malware;
 
@@ -4424,7 +4466,39 @@
                 }
 
                 echo $setView;
+            } elseif($pageShow == 'malware-perm-scan-log'){
+
+                if (is_dir($autoCreateScan)) {
+                    $getAllFiles = $webTools->fileScan($autoCreateScan, [$webTools->formatLog], 'file');
+                    
+                    if ($getAllFiles) {
+
+                        $xCounter = 1;
+                        foreach ($getAllFiles as $keyItem => $valueItem) {
+                            echo '<div class="list-item-scan" style="border-bottom: 2px dotted grey; padding-bottom: 8px; padding-top: 8px;">';
+
+                            echo '
+                            <div><strong>
+                            '. $xCounter .') </strong>'. basename($valueItem['item']) .'
+                                <div>
+                                <button class="btn bg-sec text-white btn-sm" onclick=\'malwareScanStart("'. base64_encode(trim($valueItem['item'])) .'", "open-log");\'>Open Log Scan</button>
+                                </div>
+                            </div>
+                            ';
+
+                            echo '</div>'; 
+                            $xCounter++;                      
+                        }
+                        
+                    } else {
+                        echo "<div><div class='badge badge-warning text-white'>Failed getting file logs in [$autoCreateScan]. File not Found. Scan Now for Getting Logs.</div></div>";
+                    }
+                } else {
+                    echo "<div><div class='badge badge-danger text-white'>Failed getting file logs in [$autoCreateScan]. Directory not found.</div></div>";
+                }
             }
+
+            
 
             else {
                 dashboardPage($webTools);

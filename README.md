@@ -9,6 +9,21 @@ Latest version now 1.4 beta
 
 Default Password : root!
 
+Structure of File webtools.php
+
+|
+|--- Run the required code first
+|
+|--- all the functions needed in the system
+|
+|--- dashboard function to render the whole view
+|
+|--- login function to create login view
+|
+|--- all data request actions are in this section
+|
+
+
 the latest view of the current tools:
 
 ![alt text](https://raw.githubusercontent.com/fordevelopertools/webtools/main/webtools1.5.png)
