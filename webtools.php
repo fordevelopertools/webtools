@@ -1133,12 +1133,13 @@
                             $shortCode = substr($getFileContentClean, $checkPosString, $strLenMax2);
                             
                             $tempCheckByPayload = [
-                                'level'         =>  $payloadListItem['level'],
-                                'name'          =>  $payloadListItem['name'],
-                                'desc'          =>  $payloadListItem['description'],
-                                'pos'           =>  $checkPosString,
-                                'permission'    =>  $payloadListItem['perm'],
-                                'short_script'  =>  $shortCode 
+                                'level'             =>  $payloadListItem['level'],
+                                'name'              =>  $payloadListItem['name'],
+                                'desc'              =>  $payloadListItem['description'],
+                                'pos'               =>  $checkPosString,
+                                'permission'        =>  $payloadListItem['perm'],
+                                'malware_potential' =>  $payloadListItem['malware_potential'],
+                                'short_script'      =>  $shortCode 
                             ];
 
                             return $tempCheckByPayload;
@@ -2529,7 +2530,6 @@
                         <div class="card elem-content bg-prim text-white">
                             <div class="card-header">
                                 <h4>Scan Malware & Permission</h4>
-                                <button onclick="setTheme();">Set Theme</button>
                             </div>
                         </div>
                     </div>
@@ -2581,82 +2581,114 @@
                                         </div>
                                         
                                     </div>
-                                    <div class="col-md-4">
-                                        <strong class="text-scan-header">LEVEL SCAN</strong>
-                                        <div class="separator-sec"></div>
+                                    <div class="col-md-8">
                                         <div class="row">
-                                            <div class="col-12 pt-2 pb-2">
-                                                <div class="indicator-color indicator-color-one"></div> 
-                                                Level 1 Scan : Normal
-                                            </div>
-                                            <div class="col-12 pt-2 pb-2">
-                                                <div class="indicator-color indicator-color-two"></div> 
-                                                Level 2 Scan : Normal - Warning
-                                            </div>
-                                            <div class="col-12 pt-2 pb-2">
-                                                <div class="indicator-color indicator-color-three"></div> 
-                                                Level 3 Scan : Warning
-                                            </div>
-                                            <div class="col-12 pt-2 pb-2">
-                                                <div class="indicator-color indicator-color-four"></div> 
-                                                Level 4 Scan : Warning - Risk
-                                            </div>
-                                            <div class="col-12 pt-2 pb-2">
-                                                <div class="indicator-color indicator-color-five"></div> 
-                                                Level 5 Scan : Risk
-                                            </div>
-                                            <div class="col-12 pt-2 pb-2">
-                                                <div class="indicator-color indicator-color-six"></div> 
-                                                Level 6 Scan : Normal - Warning - Risk
-                                            </div>
-                                            <div class="col-12 pt-2 pb-2">
-                                                <div class="indicator-color indicator-color-seven"></div> 
-                                                Level 7 Scan : Normal - Risk
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <strong class="text-scan-header">INFO</strong>
-                                        <div class="separator-sec"></div>
-                                        <div class="scan-info-box scroll-active">
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div><div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div><div class="p3">
-                                                a
-                                            </div>
-                                            <div class="p3">
-                                                a
-                                            </div>
+                                            <div class="col-md-12">
 
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <strong class="text-scan-header">POTENTIAL MALWARE</strong>
+                                                        <div class="separator-sec"></div>
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <div class="indicator-color indicator-color-one"></div> 0-30
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <div class="indicator-color indicator-color-two"></div>31-75
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <div class="indicator-color indicator-color-three"></div>76-85
+                                                    </div>
+                                                    <div class="col-3">
+                                                        <div class="indicator-color indicator-color-five"></div>86-100
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <div class="separator-sec"></div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <strong class="text-scan-header">LEVEL SCAN</strong>
+                                                        <div class="separator-sec"></div>
+                                                        <div class="row">
+                                                            <div class="col-12 pt-2 pb-2">
+                                                                <div class="indicator-color indicator-color-one"></div> 
+                                                                Level 1 Scan : Normal
+                                                            </div>
+                                                            <div class="col-12 pt-2 pb-2">
+                                                                <div class="indicator-color indicator-color-two"></div> 
+                                                                Level 2 Scan : Normal - Warning
+                                                            </div>
+                                                            <div class="col-12 pt-2 pb-2">
+                                                                <div class="indicator-color indicator-color-three"></div> 
+                                                                Level 3 Scan : Warning
+                                                            </div>
+                                                            <div class="col-12 pt-2 pb-2">
+                                                                <div class="indicator-color indicator-color-four"></div> 
+                                                                Level 4 Scan : Warning - Risk
+                                                            </div>
+                                                            <div class="col-12 pt-2 pb-2">
+                                                                <div class="indicator-color indicator-color-five"></div> 
+                                                                Level 5 Scan : Risk
+                                                            </div>
+                                                            <div class="col-12 pt-2 pb-2">
+                                                                <div class="indicator-color indicator-color-six"></div> 
+                                                                Level 6 Scan : Normal - Warning - Risk
+                                                            </div>
+                                                            <div class="col-12 pt-2 pb-2">
+                                                                <div class="indicator-color indicator-color-seven"></div> 
+                                                                Level 7 Scan : Normal - Risk
+                                                            </div>
+                                                        </div>
+                                                        
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <strong class="text-scan-header">RECENT SCAN RESULTS</strong>
+                                                        <div class="separator-sec"></div>
+                                                        <div class="scan-info-box scroll-active">
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div><div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div><div class="p3">
+                                                                a
+                                                            </div>
+                                                            <div class="p3">
+                                                                a
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -4254,6 +4286,7 @@
                 echo "</div>";
 
             } elseif($pageShow == 'malware-perm-scan-proc'){
+
                 $dir_for_scan_malware  = trim($_POST['dir_for_scan_malware']);
                 $scan_level  = trim($_POST['scan_level']);
                 $scan_regex_search = trim($_POST['scan_regex_search']);
@@ -4261,6 +4294,8 @@
                 $showDetail = trim($_POST['show_detail']);
 
                 $timeSetID = date('H:i d-m-Y') ." - ". time();
+
+                $setView = '';
 
                 /* 
                 #Scan results json parameter
@@ -4279,7 +4314,7 @@
                 [total_time_execute] => 0
                 */
 
-                echo "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
+                $setView .= "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
 
                 $getResultScan = $webTools->malwareScan($dir_for_scan_malware, $scan_regex_search, $scan_limit_size, $scan_level, null);
 
@@ -4287,8 +4322,8 @@
                     $xCounter = 1;
                     foreach ($getResultScan['scan_item'] as $keyItemResults => $valueItemResults) {
 
-                        echo '<div class="list-item-scan" style="border-top: 3px dotted #f4f4f4; border-left: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px; font-size: 16px !important;" id="list-item-scan_'. $xCounter .'">';
-                        echo '
+                        $setView .= '<div class="list-item-scan" style="border-top: 3px dotted #f4f4f4; border-left: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px; font-size: 16px !important;" id="list-item-scan_'. $xCounter .'">';
+                        $setView .= '
                         <div class="row">
                             <div class="col-md-9">
                                 <div class="sec-action-scan">
@@ -4321,63 +4356,75 @@
 
                         if (is_array($valueItemResults['item_result']) && count($getResultScan['scan_item']) > 0) {
 
+                            $potential_malware = 0;
+                            
                             foreach ($valueItemResults['item_result'] as $keyItemScan => $valueItemScan) {
+
+                                $potential_malware_scan = $valueItemScan['malware_potential'];
+
+                                $potential_malware = $potential_malware_scan > $potential_malware ? $potential_malware_scan : $potential_malware;
 
                                 $setColorBg  = $valueItemScan['level']  == 'risk' ? 'danger' : 
                                     ($valueItemScan['level']  == 'warning' ? 'warning' : 'success');
 
-                                echo '<div class="list-item-scan" style="border-left: 2px dotted grey; border-top: 1px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;">';           
-
-                                echo '
+                                $setView .= '<div class="list-item-scan" style="border-left: 2px dotted grey; border-top: 1px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;">';           
+                                $setView .= '
                                 <div>
                                     <strong>Detect Script By: </strong>'. $valueItemScan['name'] .'
                                 </div>
                                 ';
-
-                                echo '
+                                $setView .= '
                                 <div>
                                     <strong>Description: </strong>'. $valueItemScan['desc'] .'
                                 </div>
                                 ';
-                                
-                                echo '
+                                $setView .= '
                                 <div>
                                     <strong>Short Script: </strong>'. htmlspecialchars($valueItemScan['short_script']) .'...
                                 </div>
                                 ';
-
-                                echo '
+                                $setView .= '
                                 <div>
                                     <strong>Level: </strong> <div class="badge badge-'. $setColorBg .' text-white">'. $valueItemScan['level'] .'</div>
                                 </div>
                                 ';
-
-                                echo '
+                                $setView .= '
                                 <div>
                                     <strong>Permission: </strong>'. $valueItemScan['permission'] .'
                                 </div>
                                 ';
                                 
-
-                                echo "</div>";
+                                $setView .= "</div>";
                             }
                         }
 
-                        
-                        echo'</div></div></div>';
-                        echo "</div>";
-                        echo "</div>";
+                        // check potential malware infection for notice
+                        /* 
+                            one 0-30
+                            two 31-50
+                            three 51-79
+                            five 80-100
+                        */
+                        $setNoticePotMalware  = $potential_malware <= 30 ? 'one' : 
+                            ($potential_malware > 30 && $potential_malware <= 75 ? 'two' : 
+                                ($potential_malware > 76 && $potential_malware <= 85 ? 'three' : 'five'));
 
+                        $setNoticeViewPotMalware = '<div class="indicator-color indicator-color-'. $setNoticePotMalware .'"></div> '. $potential_malware;
+
+
+                        $setView .='
+                        </div></div>
+                        </div><div style="padding-left: 10px; margin-bottom: 5px;">Potential Malware Score: '. $setNoticeViewPotMalware .'</div>';
+                        $setView .= "</div>";
+                        $setView .= "</div>";
 
                         $xCounter++;
-
                     }
-                    
-
-                    
                 } else {
-                    echo "<div><div class='badge badge-danger text-white'>Results 0. or False.</div></div>";
+                    $setView .= "<div><div class='badge badge-danger text-white'>Results 0. or False.</div></div>";
                 }
+
+                echo $setView;
             }
 
             else {
