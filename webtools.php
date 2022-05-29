@@ -3,9 +3,9 @@
     /* 
         - CREATE BY FORDEVELOPERTOOLS WEB DEVELOPER TEAM
         - AUTHOR: NUR SHODIK ASSALAM
-        - VERSION  1.5
+        - VERSION  1.5.1
         - RELEASE 5-20-2022
-        - UPDATE 5-28-2022
+        - UPDATE 5-30-2022
     */
 
     // started First
@@ -420,7 +420,7 @@
             echo '
                 <style>
                     .reload-page {
-                        color: white;
+                        color: var(--color-theme);
                         background: var(--primary-color);
                         padding: 15px;
                         position: fixed;
@@ -434,8 +434,9 @@
                         align-items: center;
                         justify-content: center;
                         text-decoration: none;
-                        border: 2px solid white;
+                        border: 2px solid var(--color-theme);
                     }
+
                     .reload-page:hover {
                         color: #6c757d;
                     }
@@ -455,6 +456,7 @@
                         --secondary-color: #292D3E;
                         --body-text-header-font-size: 16px;
                         --body-text-content-font-size: 14px;
+                        --color-theme: white;
                     }
                     
                     body {
@@ -466,6 +468,28 @@
                     '. $addCss .'
 
                 </style>
+            ';
+        }
+
+        public function setThemeCss(){
+            echo '
+                .set-theme {
+                    color: var(--color-theme);
+                    background: var(--primary-color);
+                    padding: 15px;
+                    position: fixed;
+                    bottom: 70px;
+                    right: 20px;
+                    border-radius: 50%;
+                    height: 40px;
+                    width: 40px;
+                    font-size: 14px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-decoration: none;
+                    border: 2px solid var(--color-theme);
+                }
             ';
         }
 
@@ -1332,23 +1356,29 @@
         @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200;300;400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css?family=Bungee:wght@100;200;300;400;500;600;700;800');
 
-        * {
-            margin: 0px;
-            padding: 0px;
-            box-sizing: border-box;
-        }
+        <?php $webTools->setThemeCss(); ?>
+
 
         :root {
             --primary-color: #1B1E2B;
             --secondary-color: #292D3E;
             --body-text-header-font-size: 16px;
             --body-text-content-font-size: 14px;
+            --color-theme: white;
+            --button-color: white;
+        }
+
+        * {
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
         }
         
         body {
             font-family: "Dosis", cursive;
             background: var(--secondary-color);
             font-size: var(--body-text-content-font-size);
+            color: var(--color-theme);
         }
 
         h1 { font-size: 36px; font-weight: 600; }
@@ -1432,7 +1462,7 @@
 
         .text-label {
             font-weight: 500;
-            color: #fff;
+            color: var(--color-theme);
             font-size: var(--body-text-header-font-size);
         }
 
@@ -1564,7 +1594,7 @@
 
         #textEditor {
             background: var(--primary-color);
-            color: white;
+            color: var(--color-theme);
             width: 100%;
             border: 2px solid var(--secondary-color);
             font-size: var(--body-text-header-font-size);
@@ -1730,6 +1760,29 @@
             max-height: 250px;
         }
 
+        .item-theme {
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px dotted grey;
+            font-size: var(--body-text-header-font-size);
+            text-transform: uppercase;
+        }
+
+        .box-theme-color {
+            padding-left: 8px;
+            padding-right: 8px; 
+            margin-right: 10px;
+            border: 3px solid grey;
+        } 
+        
+        .box-theme-color-white {
+            background: white;
+        }
+
+        .box-theme-color-pale-night {
+            background: #1B1E2B;
+        }
+
 
     </style>
 </head>
@@ -1812,7 +1865,7 @@
                                 <div>
                                 <?php 
                                     if ($webTools->chekRoot()) {
-                                        echo "<div class='text-green'>Writeable</div>";
+                                        echo "<div class='text-white'>Writeable</div>";
                                     } else {
                                         echo "<div class='text-danger'>No Writeable</div>";
                                     }
@@ -1824,7 +1877,7 @@
                                 <div>
                                 <?php 
                                     if ($webTools->cekdir()) {
-                                        echo "<div class='text-green'>Writeable</div>";
+                                        echo "<div class='text-white'>Writeable</div>";
                                     } else {
                                         echo "<div class='text-danger'>No Writeable</div>";
                                     }
@@ -2544,13 +2597,13 @@
                         <div class="card elem-content bg-prim text-white">
                             <div class="card-header">
                                 <div class="input-group mb-3 bg-transparent">
-                                    <input type="text" class="form-control" name="dir_for_scan_malware" id="dir_for_scan_malware" placeholder="Directory Location..." value="<?= isset($_GET['directory_location']) && trim($_GET['directory_location']) !== '' ? trim($_GET['directory_location']): './'; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                    <input type="text" class="form-control" name="dir_for_scan_malware" id="dir_for_scan_malware" placeholder="Directory Location..." value="<?= isset($_GET['directory_location']) && trim($_GET['directory_location']) !== '' ? trim($_GET['directory_location']): './'; ?>" class="bg-transparent text-white" required/>
                                     
-                                    <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" style="color: white !important;" required/>
+                                    <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" required/>
 
-                                    <input type="number" class="form-control" name="scan_limit_size" id="scan_limit_size" value="1048576" placeholder="Scan limit size Bytes..." class="bg-transparent text-white" style="color: white !important;" required/>
+                                    <input type="number" class="form-control" name="scan_limit_size" id="scan_limit_size" value="1048576" placeholder="Scan limit size Bytes..." class="bg-transparent text-white" required/>
                                     
-                                    <select class="form-control" name="scan_level" id="scan_level" style="color: grey;" required/>
+                                    <select class="form-control" name="scan_level" id="scan_level" required/>
                                         <option value="4">Default Level 4 Scan</option>
                                         <option value="1">Level 1</option>
                                         <option value="2">Level 2</option>
@@ -2675,6 +2728,68 @@
                 </div>
 
                 <?php } else{ /*something*/ } ?>
+
+                <span class="set-theme" onclick="openPopup('#set-theme-popup');">
+                    <i class="fa-solid fa-sun"></i>
+                </span>
+                
+                <div class="box-popup" id="set-theme-popup">
+                    <div class="row">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4">
+                            <div class="card card-default bg-prim bordered">
+                                <div class="card-header">
+                                    <div class="row">
+                                        <div class="col-10">
+                                            <h4>THEMES</h4>
+                                        </div>
+                                        <div class="col-2">
+                                            <h4>
+                                                <button class="close bg-prim text-white" onclick="closePopup('#set-theme-popup');">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
+                                            </h4>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="list-item-theme">
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-white"></span>
+                                                    Set White Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('white');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-pale-night"></span>
+                                                    Set Pale Night Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('palenight');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4"></div>
+                    </div>
+                </div>
+
+
+
             </div>
             <!-- end body content -->
         </div>
@@ -2705,6 +2820,43 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+
+    function setTheme(themeSet = null){
+        // var sheet = document.styleSheets[0];
+
+        var cssSetWhite  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: black; --button-color: white;} .text-white{color: var(--color-theme) !important;} .form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--color-theme) !important; }  button {color: var(--button-color) !important; } .text-label {var(--color-theme);}";
+
+        var cssSetPaleNight  = ":root{--primary-color: #1B1E2B; --secondary-color: #292D3E; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {var(--color-theme);}";
+        
+        if (themeSet == 'white') {
+            var cssSet = cssSetWhite;
+        } else if (themeSet == 'palenight') {
+            var cssSet = cssSetPaleNight;
+        }
+
+
+        else {
+            var cssSet  = cssSetWhite;
+        }
+
+        // check if set by click theme
+        if (themeSet !== null) {
+            localStorage.setItem("theme_set", themeSet);
+        } else {
+            var getSetThemeSession = localStorage.getItem("theme_set", themeSet);
+            if (getSetThemeSession == 'white') {
+                var cssSet = cssSetWhite;
+            } else {
+                var cssSet = cssSetPaleNight;
+            }
+        }
+
+        $('#styleMaster').append(cssSet);
+
+    }
+
+    // set started load page theme
+    setTheme();
 
     function copy_text(containerid) {
         var range = document.createRange();
@@ -3355,16 +3507,6 @@
     });
 
     <?php } elseif($webTools->pageActive() == 'malware-perm-scan'){ ?>
-
-    function setTheme(){
-        // var sheet = document.styleSheets[0];
-        
-        var cssSet  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px;} .text-white{color: black !important;}";
-
-        $('#styleMaster').append(cssSet);
-
-        // sheet.insertRule(cssSet);
-    }
 
     function malwareScanLog(){
 
@@ -4356,7 +4498,14 @@
                         if (is_dir($autoCreateScan)) {
                             $setFilePathLog = $autoCreateScan . DIRECTORY_SEPARATOR . $forSetFileLog . $webTools->formatLog;
                             //create file log
-                            $webTools->createFile($setFilePathLog, 'w', json_encode($getResultScan));
+                            $jsonSetLog = json_encode($getResultScan);
+                            if ($jsonSetLog) {
+                                $webTools->createFile($setFilePathLog, 'w', $jsonSetLog);
+                            } else {
+                                $setView .= "<div><div class='badge badge-danger text-white'>Cant Make a Log File. Error parsing to json encoded.</div></div>";
+
+                            }
+                            
                         }
                     }
 
