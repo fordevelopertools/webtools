@@ -4413,7 +4413,7 @@
 
                         $setView .='
                         </div></div>
-                        </div><div style="padding-left: 10px; margin-bottom: 5px;">Potential Malware Score: '. $setNoticeViewPotMalware .'</div>';
+                        </div><div style="padding-left: 10px; margin-bottom: 5px; margin-top: -10px; font-weight: 800;" class="">Potential Malware Score: '. $setNoticeViewPotMalware .'</div>';
                         $setView .= "</div>";
                         $setView .= "</div>";
 
