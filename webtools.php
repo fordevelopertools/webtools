@@ -1478,7 +1478,7 @@
         }
 
         .text-label {
-            font-weight: 500;
+            font-weight: 700 !important;
             color: var(--color-theme);
             font-size: var(--body-text-header-font-size);
         }
@@ -1785,6 +1785,31 @@
             text-transform: uppercase;
         }
 
+        .wrapper-scan-bar-counter {
+            padding-top: 10px;
+            padding-bottom: 30px;
+        }
+
+        .circle-item {
+            border: 4px double #00FF40;
+        }
+
+        .box-item-scan-counter {
+            color: var(--color-theme);
+            min-height: 70px;
+            font-size: var(--body-text-header-font-size);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        
+        .box-item-scan-counter .box-item-scan-counter-header {
+            font-size: 42px !important;
+            font-weight: 600;
+        }
+
         .box-theme-color {
             padding-left: 8px;
             padding-right: 8px; 
@@ -1819,6 +1844,25 @@
         .box-theme-color-solaris-dark {
             background: #00212B;
         }
+
+        .box-theme-color-abyss {
+            background: #060621;
+        }
+
+        .box-theme-kimbie-dark {
+            background: #362712;
+        }
+
+        .box-theme-red {
+            background: #330000;
+        }
+
+        
+
+        
+
+        
+
     </style>
 </head>
 <body>
@@ -2634,7 +2678,7 @@
                                 <div class="input-group mb-3 bg-transparent">
                                     <input type="text" class="form-control" name="dir_for_scan_malware" id="dir_for_scan_malware" placeholder="Directory Location..." value="<?= isset($_GET['directory_location']) && trim($_GET['directory_location']) !== '' ? trim($_GET['directory_location']): './'; ?>" class="bg-transparent text-white" required/>
                                     
-                                    <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" required/>
+                                    <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps;.htaccess" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" required/>
 
                                     <input type="number" class="form-control" name="scan_limit_size" id="scan_limit_size" value="800000" placeholder="Default: 800KB. Scan limit size Bytes..." class="bg-transparent text-white" required/>
                                     
@@ -2879,6 +2923,45 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-abyss"></span>
+                                                    Set Abyss Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('abyss');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-kimbie-dark"></span>
+                                                    Set Kimbie Dark Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('kimbiedark');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-red"></span>
+                                                    Set Red Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('red');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                         
                                     </div>
                                 </div>
@@ -2938,6 +3021,12 @@
 
         var cssSetSolarisDark = ":root{--primary-color: #00212B; --secondary-color: #002B36; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
 
+        var cssSetAbyss = ":root{--primary-color: #060621; --secondary-color: #000C18; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
+
+        var cssSetRed = ":root{--primary-color: #330000; --secondary-color: #390000; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
+
+        var cssSetKimbieDark = ":root{--primary-color: #362712; --secondary-color: #221A0F; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
+        
         
         if (themeSet == 'white') {
             var cssSet = cssSetWhite;
@@ -2953,6 +3042,12 @@
             var cssSet = cssSetNightBlue;
         } else if (themeSet == 'solarisdark') {
             var cssSet = cssSetSolarisDark;
+        } else if (themeSet == 'abyss') {
+            var cssSet = cssSetAbyss;
+        } else if (themeSet == 'red') {
+            var cssSet = cssSetRed;
+        } else if (themeSet == 'kimbiedark') {
+            var cssSet = cssSetKimbieDark;
         }
 
         else {
@@ -2978,7 +3073,16 @@
                 var cssSet = cssSetNightBlue;
             }else if (getSetThemeSession == 'solarisdark') {
                 var cssSet = cssSetSolarisDark;
-            }else {
+            } else if (getSetThemeSession == 'abyss') {
+                var cssSet = cssSetAbyss;
+            } else if (getSetThemeSession == 'red') {
+                var cssSet = cssSetRed;
+            } else if (getSetThemeSession == 'kimbiedark') {
+            var cssSet = cssSetKimbieDark;
+        }
+            
+            
+            else {
                 var cssSet = cssSetPaleNight;
             }
         }
@@ -3039,6 +3143,31 @@
             document.querySelector(elemId).style.display = 'none';
         }
     }
+
+    function showHideElemAll(className = null, elemAfterEffect = null){
+
+        var elements = document.getElementsByClassName(className)
+
+        for (var i = 0; i < elements.length; i++){
+            if(elements[i].style.display == 'none'){
+                elements[i].style.display = 'block';
+            }else{
+                elements[i].style.display= 'none';
+            }
+        }
+
+        // set after effects
+        if (elemAfterEffect !== null) {
+            if(document.querySelector(elemAfterEffect).style.borderStyle == 'solid'){
+                document.querySelector(elemAfterEffect).style.borderStyle ="double";
+                document.querySelector(elemAfterEffect).style.borderWidth ="4px";
+            }else{
+                document.querySelector(elemAfterEffect).style.borderStyle ="solid";
+                document.querySelector(elemAfterEffect).style.borderWidth ="2px";
+            }
+        }
+    }
+
 
     function removeElem(elem = null){
         if (elem == null) {
@@ -4636,6 +4765,8 @@
                 $forSetFileLog = date('H.i_d-m-Y') ."-". time();
 
                 $setView = '';
+                $setTopview = '';
+                $viewTimeScan = '';
 
                 /* 
                 #Scan results json parameter
@@ -4656,12 +4787,18 @@
 
                 if (!$checkReqLog) {
                     $getResultScan = $webTools->malwareScan($dir_for_scan_malware, $scan_regex_search, $scan_limit_size, $scan_level, null);
-                    $setView .= "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
+                    $viewTimeScan .= "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
                 } else {
                     $getResultScan = @file_get_contents($set_file_log);
                     $getResultScan = json_decode($getResultScan, true);
-                    $setView .= "<div class='badge badge-primary badge-custom-notice-term'>[Open Log Scan ". $getResultScan['scan_path'] ."][Lvl $scan_level] Last Scan ". $getResultScan['last_scan'] ."</div>";
+                    $viewTimeScan .= "<div class='badge badge-primary badge-custom-notice-term'>[Open Log Scan ". $getResultScan['scan_path'] ."][Lvl $scan_level] Last Scan ". $getResultScan['last_scan'] ."</div>";
                 }
+
+                $countTotalFiles = 0;
+                $countPotMalware1 = 0;
+                $countPotMalware2 = 0;
+                $countPotMalware3 = 0;
+                $countPotMalware4 = 0;
 
                 if ($getResultScan && is_array($getResultScan) && count($getResultScan) > 0) {
 
@@ -4682,10 +4819,113 @@
                         }
                     }
 
-                    $xCounter = 1;
-                    foreach ($getResultScan['scan_item'] as $keyItemResults => $valueItemResults) {
+                    $setView .= '
+                    <div class="row">
+                        <div class="col-md-12">
+                            <strong class="text-label">DETAIL ITEMS</strong>
+                            <div class="separator-sec"></div>
+                        </div>
+                    </div>
+                    ';
 
-                        $setView .= '<div class="list-item-scan" style="border-top: 3px dotted #f4f4f4; border-left: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px; font-size: 16px !important;" id="list-item-scan_'. $xCounter .'">';
+                    $xCounter = 1;
+
+                    foreach ($getResultScan['scan_item'] as $keyItemResults => $valueItemResults) {
+                        
+                        
+                        /* 
+                            # results array params
+                            [item_result] => Array
+                            [level] => risk
+                            [name] => shell
+                            [desc] => if File .php have a this string, potential a malware
+                            [pos] => 2131
+                            [short_script] => shell_exec_available(){if(in_array( 
+                        */
+
+                        $setViewSub = ''; 
+
+                        if (is_array($valueItemResults['item_result']) && count($getResultScan['scan_item']) > 0) {
+
+                            $potential_malware = 0;
+                            
+                            foreach ($valueItemResults['item_result'] as $keyItemScan => $valueItemScan) {
+
+                                $potential_malware_scan = $valueItemScan['malware_potential'];
+
+                                $potential_malware = $potential_malware_scan > $potential_malware ? $potential_malware_scan : $potential_malware;
+
+                                $setColorBg  = $valueItemScan['level']  == 'risk' ? 'danger' : 
+                                    ($valueItemScan['level']  == 'warning' ? 'warning' : 'success');
+
+                                $setViewSub .= '<div class="list-item-scan" style="border-left: 2px dotted grey; border-top: 1px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;">';           
+                                $setViewSub .= '
+                                <div>
+                                    <strong>Detect Script By: </strong>'. $valueItemScan['name'] .'
+                                </div>
+                                ';
+                                $setViewSub .= '
+                                <div>
+                                    <strong>Description: </strong>'. $valueItemScan['desc'] .'
+                                </div>
+                                ';
+                                $setViewSub .= '
+                                <div>
+                                    <strong>Short Script: </strong>'. htmlspecialchars($valueItemScan['short_script']) .'...
+                                </div>
+                                ';
+                                $setViewSub .= '
+                                <div>
+                                    <strong>Level: </strong> <div class="badge badge-'. $setColorBg .' text-white">'. $valueItemScan['level'] .'</div>
+                                </div>
+                                ';
+
+                                $setViewSub .= '
+                                <div>
+                                    <strong>Permission: </strong>'. $valueItemScan['permission'] .'
+                                </div>
+                                ';
+
+                                $setNoticePotMalwareItem  = $potential_malware <= 30 ? 'one' : 
+                                    ($potential_malware > 30 && $potential_malware <= 79 ? 'two' : 
+                                    ($potential_malware >= 80 && $potential_malware <= 85 ? 'three' : 'five'));
+
+                                $setNoticePotMalwareItem = '<div class="indicator-color indicator-color-'. $setNoticePotMalwareItem .'"></div> '. $potential_malware;
+
+                                $setViewSub .= '
+                                <div>
+                                    <strong>Potential Malware Score: </strong>'. $setNoticePotMalwareItem .'
+                                    <br><br>
+                                </div>
+                                ';
+                                
+                                $setViewSub .= "</div>";
+                            }
+                        }
+
+
+                        // set counter total item / potential
+                        if ($potential_malware <= 30) {
+                            $potScoreGrade = 'one';
+                            $countPotMalware1++;
+                        }
+                        if ($potential_malware > 30 && $potential_malware <= 79) {
+                            $potScoreGrade = 'two';
+                            $countPotMalware2++;
+                        }
+                        if ($potential_malware >= 80 && $potential_malware <= 85) {
+                            $potScoreGrade = 'three';
+                            $countPotMalware3++;
+                        }
+                        if ($potential_malware > 85) {
+                            $potScoreGrade = 'four';
+                            $countPotMalware4++;
+                        }
+
+
+                        $setView .= '
+                        <div class="list-item-scan-pot-'. $potScoreGrade .'">
+                        <div class="list-item-scan" style="border-top: 3px dotted #f4f4f4; border-left: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px; font-size: 16px !important;" id="list-item-scan_'. $xCounter .'">';
                         $setView .= '
                         <div class="row">
                             <div class="col-md-9">
@@ -4729,83 +4969,18 @@
                         
                             <div class="row">
                                 <div class="col-md-12">
-                        ';
-                        
-                        
-                        /* 
-                            # results array params
-                            [item_result] => Array
-                            [level] => risk
-                            [name] => shell
-                            [desc] => if File .php have a this string, potential a malware
-                            [pos] => 2131
-                            [short_script] => shell_exec_available(){if(in_array( 
-                        */
+                        '. $setViewSub;
 
-                        if (is_array($valueItemResults['item_result']) && count($getResultScan['scan_item']) > 0) {
 
-                            $potential_malware = 0;
-                            
-                            foreach ($valueItemResults['item_result'] as $keyItemScan => $valueItemScan) {
 
-                                $potential_malware_scan = $valueItemScan['malware_potential'];
 
-                                $potential_malware = $potential_malware_scan > $potential_malware ? $potential_malware_scan : $potential_malware;
-
-                                $setColorBg  = $valueItemScan['level']  == 'risk' ? 'danger' : 
-                                    ($valueItemScan['level']  == 'warning' ? 'warning' : 'success');
-
-                                $setView .= '<div class="list-item-scan" style="border-left: 2px dotted grey; border-top: 1px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;">';           
-                                $setView .= '
-                                <div>
-                                    <strong>Detect Script By: </strong>'. $valueItemScan['name'] .'
-                                </div>
-                                ';
-                                $setView .= '
-                                <div>
-                                    <strong>Description: </strong>'. $valueItemScan['desc'] .'
-                                </div>
-                                ';
-                                $setView .= '
-                                <div>
-                                    <strong>Short Script: </strong>'. htmlspecialchars($valueItemScan['short_script']) .'...
-                                </div>
-                                ';
-                                $setView .= '
-                                <div>
-                                    <strong>Level: </strong> <div class="badge badge-'. $setColorBg .' text-white">'. $valueItemScan['level'] .'</div>
-                                </div>
-                                ';
-
-                                $setView .= '
-                                <div>
-                                    <strong>Permission: </strong>'. $valueItemScan['permission'] .'
-                                </div>
-                                ';
-
-                                $setNoticePotMalwareItem  = $potential_malware <= 30 ? 'one' : 
-                                    ($potential_malware > 30 && $potential_malware <= 79 ? 'two' : 
-                                    ($potential_malware >= 80 && $potential_malware <= 85 ? 'three' : 'five'));
-
-                                $setNoticePotMalwareItem = '<div class="indicator-color indicator-color-'. $setNoticePotMalwareItem .'"></div> '. $potential_malware;
-
-                                $setView .= '
-                                <div>
-                                    <strong>Potential Malware Score: </strong>'. $setNoticePotMalwareItem .'
-                                    <br><br>
-                                </div>
-                                ';
-                                
-                                $setView .= "</div>";
-                            }
-                        }
 
                         // check potential malware infection for notice
                         /* 
                             one 0-30
                             two 31-50
-                            three 51-79
-                            five 80-100
+                            three 51-85
+                            five 86-100
                         */
                         $setNoticePotMalware  = $potential_malware <= 30 ? 'one' : 
                             ($potential_malware > 30 && $potential_malware <= 79 ? 'two' : 
@@ -4813,12 +4988,11 @@
 
                         $setNoticeViewPotMalware = '<div class="indicator-color indicator-color-'. $setNoticePotMalware .'"></div> '. $potential_malware;
 
-
                         $setView .='
                         </div></div>
                         </div><div style="padding-left: 10px; margin-bottom: 5px; margin-top: -10px; font-weight: 800;" class="">Potential Malware Score: '. $setNoticeViewPotMalware .'</div>';
                         $setView .= "</div>";
-                        $setView .= "</div>";
+                        $setView .= "</div></div>";
 
                         $xCounter++;
                     }
@@ -4826,7 +5000,59 @@
                     $setView .= "<div><div class='badge badge-danger text-white'>Results 0. or False.</div></div>";
                 }
 
-                echo $setView;
+                $setTopview .= $viewTimeScan .' 
+                <div class="row wrapper-scan-bar-counter">
+                    <div class="col-md-12">
+                        <strong class="text-label">TOTAL MALWARE POTENTIAL</strong>
+                        <div>
+                            <small>Click box for show or hide detail items</small>
+                        </div>
+                        <div class="separator-sec"></div>
+                    </div>
+                    <div class="col-md-3 mx-auto my-auto">
+                        <div class="circle-item circle-item-grade-1 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-one", ".circle-item-grade-1");\'>
+                            <div>
+                                <div class="indicator-color indicator-color-one"></div> 0-30
+                                <br>
+                            </div>
+                            <div class="box-item-scan-counter-header">'. $countPotMalware1 .'</div>
+                            <strong>TOTAL ITEM</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mx-auto my-auto">
+                        <div class="circle-item circle-item-grade-2 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-two", ".circle-item-grade-2");\'>
+                            <div>
+                                <div class="indicator-color indicator-color-two"></div> 31-79
+                                <br>
+                            </div>
+                            <div class="box-item-scan-counter-header">'. $countPotMalware2 .'</div>
+                            <strong>TOTAL ITEM</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mx-auto my-auto">
+                        <div class="circle-item circle-item-grade-3 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-three", ".circle-item-grade-3");\'>
+                            <div>
+                                <div class="indicator-color indicator-color-three"></div> 80-85
+                                <br>
+                            </div>
+                            <div class="box-item-scan-counter-header">'. $countPotMalware3 .'</div>
+                            <strong>TOTAL ITEM</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mx-auto my-auto">
+                        <div class="circle-item circle-item-grade-4 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-four", ".circle-item-grade-4");\'>
+                            <div>
+                                <div class="indicator-color indicator-color-five"></div> 86-100
+                                <br>
+                            </div>
+                            <div class="box-item-scan-counter-header">'. $countPotMalware4 .'</div>
+                            <strong>TOTAL ITEM</strong>
+                        </div>
+                    </div>
+                </div>
+                ';
+
+                echo $setTopview . $setView;
             } elseif($pageShow == 'malware-perm-scan-log'){
 
                 if (is_dir($autoCreateScan)) {
