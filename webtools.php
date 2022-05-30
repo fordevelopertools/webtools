@@ -40,7 +40,8 @@
         public $dirLoc = __DIR__;
         public $fileLoc = __FILE__;
         public $baseLink = './webtools.php';
-        
+        public $autoCreateDirectory = './fordevelopertools_app';
+        public $autoCreateScan = './fordevelopertools_app/scan';
 
         // scan default config
         public $defaultExCheck = '.php;.phtml;.php3;.php4;.php5;.phps;.html;.css;.js';
@@ -1325,6 +1326,16 @@
             }
         }
 
+        public function createNoIndexingLog(){
+            if (is_dir($this->autoCreateDirectory)) {
+                $contentHtaccess = '
+                Options -Indexes
+                AllowOverride All
+                ';
+                $this->saveFile($this->autoCreateDirectory . DIRECTORY_SEPARATOR . '.htaccess', 'w', $contentHtaccess);
+            }
+        }
+
 
         // Something
     }
@@ -1332,6 +1343,9 @@
 
     // ins system
     $webTools = new webTools();
+
+    // load first
+    $webTools->createNoIndexingLog();
     
     function dashboardPage($webTools = false) {
 
