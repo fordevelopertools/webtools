@@ -1,4 +1,13 @@
 
+Release v 1.5.1
+
+#update Features
+- Add Feature Malware & Permission Scan, you can see file is potential malware by score.
+
+#Fix Bugs
+
+---------------------------------------
+
 Release v 1.4
 
 #update Features

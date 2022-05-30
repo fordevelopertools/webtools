@@ -435,6 +435,7 @@
                         justify-content: center;
                         text-decoration: none;
                         border: 2px solid var(--color-theme);
+                        z-index: 999;
                     }
 
                     .reload-page:hover {
@@ -489,6 +490,8 @@
                     justify-content: center;
                     text-decoration: none;
                     border: 2px solid var(--color-theme);
+                    z-index: 999;
+                    cursor: pointer;
                 }
             ';
         }
@@ -1783,7 +1786,25 @@
             background: #1B1E2B;
         }
 
+        .box-theme-color-ocean-high {
+            background: #090B10;
+        }
 
+        .box-theme-color-material-high {
+            background: #192227;
+        }
+
+        .box-theme-color-black {
+            background: black;
+        }
+
+        .box-theme-color-night-blue {
+            background: #001C40;
+        }
+
+        .box-theme-color-solaris-dark {
+            background: #00212B;
+        }
     </style>
 </head>
 <body>
@@ -2132,11 +2153,11 @@
                                 <form id="terminal-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
 
-                                        <input type="text" hidden="hidden" class="form-control d-none" name="info_post" id="info_post" value="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <input type="text" hidden="hidden" class="form-control d-none" name="info_post" id="info_post" value="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" required/>
 
-                                        <input type="text" class="form-control" name="command" id="command" placeholder="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <input type="text" class="form-control" name="command" id="command" placeholder="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" required/>
                                         <div class="input-group-append">
-                                            <button id="submitCommand" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitCommand" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
                                             </button>
                                         </div>
@@ -2179,8 +2200,8 @@
 
                                 <form id="file-scan-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="scan_dir" id="scan_dir" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
-                                        <input type="text" class="form-control" name="scan_payload" id="scan_payload" placeholder="example.php (use ';' for multiple)" class="bg-transparent text-white" style="color: white !important;" />
+                                        <input type="text" class="form-control" name="scan_dir" id="scan_dir" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" required/>
+                                        <input type="text" class="form-control" name="scan_payload" id="scan_payload" placeholder="example.php (use ';' for multiple)" class="bg-transparent text-white" />
                                         <select class="form-control" name="scan_for" id="scan_for" style="color: grey;" required/>
                                             <option selected disabled/>Scan For...</option>
                                             <option value="folder">Directory</option>
@@ -2188,7 +2209,7 @@
                                             <option value="ff">Both</option>
                                         </select>
                                             <div class="input-group-append">
-                                            <button id="submitFileScan" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitFileScan" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-search"></i>
                                             </button>
                                         </div>
@@ -2263,9 +2284,9 @@
 
                                 <form id="file-mgr-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <input type="text" class="form-control" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" required/>
                                         <div class="input-group-append">
-                                            <button id="submitFileMgr" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitFileMgr" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
                                             </button>
                                         </div>
@@ -2560,9 +2581,9 @@
 
                                 <form id="text-editor-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" required/>
                                         <div class="input-group-append">
-                                            <button id="submitTextEditor" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitTextEditor" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
                                             </button>
                                         </div>
@@ -2770,8 +2791,21 @@
                                         <div class="item-theme">
                                             <div class="row">
                                                 <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-black"></span>
+                                                    Set Black Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('black');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
                                                     <span class="box-theme-color box-theme-color-pale-night"></span>
-                                                    Set Pale Night Theme
+                                                    Set Pale Night Contrast Theme
                                                 </div>
                                                 <div class="col-md-4 text-right">
                                                     <button class="btn btn-sm text-white bg-sec" onclick="setTheme('palenight');">
@@ -2780,6 +2814,59 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-ocean-high"></span>
+                                                    Set Ocean High Contrast Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('oceanhigh');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-material-high"></span>
+                                                    Set Material High Contrast Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('materialhigh');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-night-blue"></span>
+                                                    Set Night Blue Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('nightblue');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="item-theme">
+                                            <div class="row">
+                                                <div class="col-md-8 text-white">
+                                                    <span class="box-theme-color box-theme-color-solaris-dark"></span>
+                                                    Set Solaris Dark Theme
+                                                </div>
+                                                <div class="col-md-4 text-right">
+                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('solarisdark');">
+                                                        Set
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -2819,6 +2906,12 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<style>
+    a {
+        color: #000000;
+    }
+</style>
+
 <script>
 
     function setTheme(themeSet = null){
@@ -2827,13 +2920,33 @@
         var cssSetWhite  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: black; --button-color: white;} .text-white{color: var(--color-theme) !important;} .form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--color-theme) !important; }  button {color: var(--button-color) !important; } .text-label {color: var(--color-theme);} option {color: var(--color-theme);}";
 
         var cssSetPaleNight  = ":root{--primary-color: #1B1E2B; --secondary-color: #292D3E; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+
+        var cssSetOceanHigh  = ":root{--primary-color: #090B10; --secondary-color: #0F111A; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+
+        var cssSetMaterialHight  = ":root{--primary-color: #192227; --secondary-color: #263238; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+
+        var cssSetBlack  = ":root{--primary-color: #000000; --secondary-color: #222222; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+
+        var cssSetNightBlue  = ":root{--primary-color: #001C40; --secondary-color: #002451; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+
+        var cssSetSolarisDark = ":root{--primary-color: #00212B; --secondary-color: #002B36; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+
         
         if (themeSet == 'white') {
             var cssSet = cssSetWhite;
         } else if (themeSet == 'palenight') {
             var cssSet = cssSetPaleNight;
+        } else if (themeSet == 'oceanhigh') {
+            var cssSet = cssSetOceanHigh;
+        } else if (themeSet == 'materialhigh') {
+            var cssSet = cssSetMaterialHight;
+        } else if (themeSet == 'black') {
+            var cssSet = cssSetBlack;
+        } else if (themeSet == 'nightblue') {
+            var cssSet = cssSetNightBlue;
+        } else if (themeSet == 'solarisdark') {
+            var cssSet = cssSetSolarisDark;
         }
-
 
         else {
             var cssSet  = cssSetWhite;
@@ -2846,7 +2959,19 @@
             var getSetThemeSession = localStorage.getItem("theme_set", themeSet);
             if (getSetThemeSession == 'white') {
                 var cssSet = cssSetWhite;
-            } else {
+            } else if (getSetThemeSession == 'palenight') {
+                var cssSet = cssSetPaleNight;
+            } else if (getSetThemeSession == 'oceanhigh') {
+                var cssSet = cssSetOceanHigh;
+            } else if (getSetThemeSession == 'materialhigh') {
+                var cssSet = cssSetMaterialHight;
+            } else if (getSetThemeSession == 'black') {
+                var cssSet = cssSetBlack;
+            }else if (getSetThemeSession == 'nightblue') {
+                var cssSet = cssSetNightBlue;
+            }else if (getSetThemeSession == 'solarisdark') {
+                var cssSet = cssSetSolarisDark;
+            }else {
                 var cssSet = cssSetPaleNight;
             }
         }
