@@ -3203,7 +3203,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=terminal-execute",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {
                 command: command,
@@ -3251,7 +3253,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=scanning-file",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {
                 scan_dir: scanDir,
@@ -3298,7 +3302,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=file-manager-load",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {
                 scan_dir_mgr: scanDirMgr
@@ -3350,7 +3356,9 @@
                 url: "<?= $webTools->baseLink; ?>?page=new-file",  
                 type: "POST",  
                 data: new FormData(this),
-                contentType: false,  
+                // bounce 403 forbidden
+                dataType: 'html',
+                contentType: 'html',  
                 processData: false, 
                 success: function(data){
                     //removeLogFileMgr('#file-mgr-log-act');
@@ -3390,7 +3398,9 @@
                 url: "<?= $webTools->baseLink; ?>?page=new-folder",  
                 type: "POST",  
                 data: new FormData(this),
-                contentType: false,  
+                // bounce 403 forbidden
+                dataType: 'html',
+                contentType: 'html',
                 processData: false, 
                 success: function(data){
                     //removeLogFileMgr('#file-mgr-log-act');
@@ -3431,7 +3441,9 @@
                     url: "<?= $webTools->baseLink; ?>?page=upload-file-mgr-proc",  
                     type: "POST",  
                     data: new FormData(this),
-                    contentType: false,  
+                    // bounce 403 forbidden
+                    dataType: 'html',
+                    contentType: 'html',  
                     processData: false, 
                     success: function(data){
                         //removeLogFileMgr('#file-mgr-log-act');
@@ -3479,7 +3491,9 @@
                 url: "<?= $webTools->baseLink; ?>?page=file-mgr-rename-proc",  
                 type: "POST",  
                 data: new FormData(this),
-                contentType: false,  
+                // bounce 403 forbidden
+                dataType: 'html',
+                contentType: 'html',  
                 processData: false, 
                 success: function(data){
                     //removeLogFileMgr('#file-mgr-log-act');
@@ -3525,7 +3539,9 @@
                 url: "<?= $webTools->baseLink; ?>?page=file-mgr-copy-proc",  
                 type: "POST",  
                 data: new FormData(this),
-                contentType: false,  
+                // bounce 403 forbidden
+                dataType: 'html',
+                contentType: 'html', 
                 processData: false, 
                 success: function(data){
                     //removeLogFileMgr('#file-mgr-log-act');
@@ -3570,7 +3586,9 @@
                 url: "<?= $webTools->baseLink; ?>?page=file-mgr-move-proc",  
                 type: "POST",  
                 data: new FormData(this),
-                contentType: false,  
+                // bounce 403 forbidden
+                dataType: 'html',
+                contentType: 'html',
                 processData: false, 
                 success: function(data){
                     //removeLogFileMgr('#file-mgr-log-act');
@@ -3665,7 +3683,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=zipper",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {
                 delete_item: delItem
@@ -3699,7 +3719,9 @@
             $.ajax({
                 type: 'POST',
                 url: "<?= $webTools->baseLink; ?>?page=ff-delete",
+                // bounce 403 forbidden
                 dataType: 'html',
+                contentType: 'html',
                 cache: false, 
                 data: {
                     delete_item: delItem
@@ -3739,7 +3761,9 @@
             $.ajax({
                 type: 'POST',
                 url: "<?= $webTools->baseLink; ?>?page=file-manager-load",
+                // bounce 403 forbidden
                 dataType: 'html',
+                contentType: 'html',
                 cache: false, 
                 data: {
                     scan_dir_mgr: scan_dir_mgr
@@ -3776,7 +3800,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-log",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {},
             success: function(data){
@@ -3833,7 +3859,9 @@
             $.ajax({
                 type: 'POST',
                 url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-proc&action=" + urlSetReq,
+                // bounce 403 forbidden
                 dataType: 'html',
+                contentType: 'html',
                 cache: false, 
                 data: {
                     dir_for_scan_malware: dir_for_scan_malware,
@@ -3909,7 +3937,9 @@
             $.ajax({
                 type: 'POST',
                 url: "<?= $webTools->baseLink; ?>?page=ff-delete",
+                // bounce 403 forbidden
                 dataType: 'html',
+                contentType: 'html',
                 cache: false, 
                 data: {
                     delete_item: delItem
@@ -3961,7 +3991,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=open",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {
                 file_loc: fileLoc,
@@ -4003,7 +4035,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=save",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {
                 file_loc: fileLoc,
@@ -4044,7 +4078,9 @@
         $.ajax({
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=open",
+            // bounce 403 forbidden
             dataType: 'html',
+            contentType: 'html',
             cache: false, 
             data: {
                 file_loc: fileLoc,
