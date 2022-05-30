@@ -2284,7 +2284,7 @@
 
                                 <form id="file-mgr-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" required/>
+                                        <input type="text" class="form-control" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= isset($_GET['dir']) && trim($_GET['dir']) !=='' ? trim($_GET['dir']) : $webTools->dirLoc; ?>" class="bg-transparent text-white" required/>
                                         <div class="input-group-append">
                                             <button id="submitFileMgr" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
@@ -2622,10 +2622,10 @@
                                     
                                     <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" required/>
 
-                                    <input type="number" class="form-control" name="scan_limit_size" id="scan_limit_size" value="1048576" placeholder="Scan limit size Bytes..." class="bg-transparent text-white" required/>
+                                    <input type="number" class="form-control" name="scan_limit_size" id="scan_limit_size" value="800000" placeholder="Default: 800KB. Scan limit size Bytes..." class="bg-transparent text-white" required/>
                                     
                                     <select class="form-control" name="scan_level" id="scan_level" required/>
-                                        <option value="4">Default Level 4 Scan</option>
+                                        <option value="5">Default Level 5 Scan</option>
                                         <option value="1">Level 1</option>
                                         <option value="2">Level 2</option>
                                         <option value="3">Level 3</option>
@@ -2636,10 +2636,9 @@
                                     </select>
 
                                     <select class="form-control" name="show_detail" id="show_detail" style="color: grey;" required/>
-                                        <option value="block">Show Details</option>
                                         <option value="none">Hide Details</option>
+                                        <option value="block">Show Details</option>
                                     </select>
-
                                 </div>
                             </div>
                             <div class="card-body">
@@ -2917,19 +2916,19 @@
     function setTheme(themeSet = null){
         // var sheet = document.styleSheets[0];
 
-        var cssSetWhite  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: black; --button-color: white;} .text-white{color: var(--color-theme) !important;} .form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--color-theme) !important; }  button {color: var(--button-color) !important; } .text-label {color: var(--color-theme);} option {color: var(--color-theme);}";
+        var cssSetWhite  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: black; --button-color: white;} .text-white{color: var(--color-theme) !important;} .form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--color-theme) !important; }  button {color: var(--button-color) !important; } .text-label {color: var(--color-theme);} option {color: var(--color-theme);} a {color: var(--color-theme) !important; }";
 
-        var cssSetPaleNight  = ":root{--primary-color: #1B1E2B; --secondary-color: #292D3E; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+        var cssSetPaleNight  = ":root{--primary-color: #1B1E2B; --secondary-color: #292D3E; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
 
-        var cssSetOceanHigh  = ":root{--primary-color: #090B10; --secondary-color: #0F111A; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+        var cssSetOceanHigh  = ":root{--primary-color: #090B10; --secondary-color: #0F111A; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
 
-        var cssSetMaterialHight  = ":root{--primary-color: #192227; --secondary-color: #263238; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+        var cssSetMaterialHight  = ":root{--primary-color: #192227; --secondary-color: #263238; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
 
-        var cssSetBlack  = ":root{--primary-color: #000000; --secondary-color: #222222; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+        var cssSetBlack  = ":root{--primary-color: #000000; --secondary-color: #222222; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
 
-        var cssSetNightBlue  = ":root{--primary-color: #001C40; --secondary-color: #002451; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+        var cssSetNightBlue  = ":root{--primary-color: #001C40; --secondary-color: #002451; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
 
-        var cssSetSolarisDark = ":root{--primary-color: #00212B; --secondary-color: #002B36; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
+        var cssSetSolarisDark = ":root{--primary-color: #00212B; --secondary-color: #002B36; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
 
         
         if (themeSet == 'white') {
@@ -3761,6 +3760,45 @@
                 $('#text-scan-now').html('SCANNING...');
             }, 1500);
         }
+    }
+
+    function delete_file_malware_scan(ListMgrDel = null, delItem = null){
+        var confirmDel = confirm('are you sure you want to delete this item ['+atob(delItem)+'] ? If true, the item will be permanently deleted.');
+        if(confirmDel){
+
+            delItem = atob(delItem);
+            $(ListMgrDel).prepend('<div class="box-msg d-block"><center><div class="loadingLogFileMgrAct"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Deleting ['+ delItem +'], Removing file...</div></center></div>');
+
+            $.ajax({
+                type: 'POST',
+                url: "<?= $webTools->baseLink; ?>?page=ff-delete",
+                dataType: 'html',
+                cache: false, 
+                data: {
+                    delete_item: delItem
+                },
+                success: function(data){
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingLogFileMgrAct');
+                    $('#submitFileMgrAct').attr("disabled", false);
+                    $(ListMgrDel).prepend('<div class="box-msg">'+ data +'</div>'); 
+                    setLoadFileMgr();
+                
+                },
+                error: function (e) {
+                    //removeLogFileMgr('#file-mgr-log-act');
+                    removeElem('.loadingLogFileMgrAct');
+                    $('#submitFileMgrAct').attr("disabled", false);
+                    $(ListMgrDel).prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+                    setLoadFileMgr();
+                }
+            });
+
+        }else{
+            // something statement
+            return false;
+        }
+
     }
 
     <?php } elseif($webTools->pageActive() == 'text-editor'){ ?>
@@ -4655,6 +4693,31 @@
                         </div>
 
                         <div style="display: '. $showDetail  .';" id="sec_action_scan_'. $xCounter .'">
+                        <div class="row">
+                            <div class="col-md-12 mb-2">
+                            <strong class="text-white">Action</strong>
+                            </div>
+                            <div class="col-md-12">
+                                <a href="'. $webTools->baseLink .'?page=download&file='. $valueItemResults['file_path'] .'" target="_blank">
+                                    <span class="badge badge-success">Download</span>
+                                </a>
+                                 | 
+                                <a href="'. $webTools->baseLink .'?page=text-editor&file='. $valueItemResults['file_path'] .'" target="_blank">
+                                    <span class="badge badge-primary">Open</span>
+                                </a>
+                                 | 
+                                <span class="badge badge-danger" onclick="delete_file_malware_scan(\'#list-item-scan-log_'. $xCounter .'\', \''. base64_encode($valueItemResults['file_path']) .'\');">Delete</span>
+                                 | 
+                                <a href="'. $webTools->baseLink .'?page=file-manager&dir='. dirname($valueItemResults['file_path']) .'" target="_blank">
+                                    <span class="badge badge-info">Open Location</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-2" id="list-item-scan-log_'. $xCounter .'">
+                            </div>
+                        </div>
+                        
                             <div class="row">
                                 <div class="col-md-12">
                         ';
