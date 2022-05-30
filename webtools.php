@@ -2824,9 +2824,9 @@
     function setTheme(themeSet = null){
         // var sheet = document.styleSheets[0];
 
-        var cssSetWhite  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: black; --button-color: white;} .text-white{color: var(--color-theme) !important;} .form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--color-theme) !important; }  button {color: var(--button-color) !important; } .text-label {var(--color-theme);}";
+        var cssSetWhite  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: black; --button-color: white;} .text-white{color: var(--color-theme) !important;} .form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--color-theme) !important; }  button {color: var(--button-color) !important; } .text-label {color: var(--color-theme);} option {color: var(--color-theme);}";
 
-        var cssSetPaleNight  = ":root{--primary-color: #1B1E2B; --secondary-color: #292D3E; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {var(--color-theme);}";
+        var cssSetPaleNight  = ":root{--primary-color: #1B1E2B; --secondary-color: #292D3E; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;}";
         
         if (themeSet == 'white') {
             var cssSet = cssSetWhite;
@@ -4498,7 +4498,8 @@
                         if (is_dir($autoCreateScan)) {
                             $setFilePathLog = $autoCreateScan . DIRECTORY_SEPARATOR . $forSetFileLog . $webTools->formatLog;
                             //create file log
-                            $jsonSetLog = json_encode($getResultScan);
+                            //$utf8_arr_encoded = utf8_encode($getResultScan);
+                            $jsonSetLog = json_encode($getResultScan, JSON_ERROR_DEPTH);
                             if ($jsonSetLog) {
                                 $webTools->createFile($setFilePathLog, 'w', $jsonSetLog);
                             } else {
@@ -4578,9 +4579,23 @@
                                     <strong>Level: </strong> <div class="badge badge-'. $setColorBg .' text-white">'. $valueItemScan['level'] .'</div>
                                 </div>
                                 ';
+
                                 $setView .= '
                                 <div>
                                     <strong>Permission: </strong>'. $valueItemScan['permission'] .'
+                                </div>
+                                ';
+
+                                $setNoticePotMalwareItem  = $potential_malware <= 30 ? 'one' : 
+                                    ($potential_malware > 30 && $potential_malware <= 79 ? 'two' : 
+                                    ($potential_malware >= 80 && $potential_malware <= 85 ? 'three' : 'five'));
+
+                                $setNoticePotMalwareItem = '<div class="indicator-color indicator-color-'. $setNoticePotMalwareItem .'"></div> '. $potential_malware;
+
+                                $setView .= '
+                                <div>
+                                    <strong>Potential Malware Score: </strong>'. $setNoticePotMalwareItem .'
+                                    <br><br>
                                 </div>
                                 ';
                                 
