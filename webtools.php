@@ -2905,12 +2905,6 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<style>
-    a {
-        color: #000000;
-    }
-</style>
-
 <script>
 
     function setTheme(themeSet = null){
@@ -4023,6 +4017,7 @@
         .form-control {
             background: rgba(0, 0, 0, .0) !important;
             border-color: #6c757d !important;
+            color: white !important;
         }
 
         /* scrollbar */
