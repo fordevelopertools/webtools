@@ -4939,12 +4939,12 @@
                         <div class="list-item-scan" style="border-top: 3px dotted #f4f4f4; border-left: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px; font-size: 16px !important;" id="list-item-scan_'. $xCounter .'">';
                         $setView .= '
                         <div class="row">
-                            <div class="col-md-9">
+                            <div class="col-md-11">
                                 <div class="sec-action-scan">
                                    <strong>'. $xCounter. ')</strong> '. $valueItemResults['file_path']. '
                                 </div>
                             </div>
-                            <div class="col-md-3 text-right">
+                            <div class="col-md-1 text-right">
                                 <button class="btn btn-sm bg-sec" onclick=\'showHideElem("#sec_action_scan_'. $xCounter .'")\'>
                                     <i class="fa-solid fa-chevron-down text-white"></i>
                                 </button>
