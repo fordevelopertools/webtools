@@ -1,15 +1,14 @@
 <?php
-
     /* 
         - CREATE BY FORDEVELOPERTOOLS WEB DEVELOPER TEAM
         - AUTHOR: NUR SHODIK ASSALAM
-        - VERSION  1.5.1
+        - VERSION  1.5.2
         - RELEASE 5-20-2022
-        - UPDATE 5-30-2022
+        - UPDATE 06-06-2022
     */
 
-    // started First
-    // set display error : default not show
+    //started First
+    //set display error : default not show
     // ini_set('display_errors', 1); 
     // ini_set('display_startup_errors', 1); 
     // error_reporting(E_ALL);
@@ -33,7 +32,9 @@
         // user default config
         public $userImage = 'https://raw.githubusercontent.com/fordevelopertools/webtools/89bb08d74b725a17704ffb5cafa3c6f4e8acd7a7/logo.png';
         public $userName = 'FORDEVELOPERTOOLS';
-        public $authPass = 'root!';
+        // password encrypt by password_hash() PASSWORD_DEFAULT.
+        // default password is "@rootuser".
+        public $authPass = '$2y$10$4d8In4hdIHoPr1lPX.8XRegTfLDNgJxgi72gOOiAGJLwCmJ02ykoq';
         public $loadImage = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/loading.gif';
 
         // directory and file default config
@@ -79,7 +80,7 @@
                 } else {
                     $setSeparator = trim($prefix) == '/' || trim($prefix) == '\\' ? 
                         substr($textPrefix, 0, (strlen($textPrefix) - 1)) : $textPrefix;
-                        return $setSeparator;
+                    return $setSeparator;
                 }
             }
         }
@@ -288,22 +289,24 @@
             }
         }
 
-        public function checkLogin(){
-            if (isset($_SESSION['login'])) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
         public function login_auth($passInput = null){
             if (trim($passInput) !== null) {
-                if (trim($passInput) == $this->authPass) {
+                if (password_verify(trim($passInput), $this->authPass)) {
                     $_SESSION['login']  =  $passInput;
                     return true;
                 } else {
                     return false;
                 }
+            } else {
+                return false;
+            }
+        }
+
+        public function checkLogin(){
+            if (isset($_SESSION['login'])) {
+                $this->passInput = trim($_SESSION['login']);
+                $auth = $this->login_auth($this->passInput);
+                return $auth;
             } else {
                 return false;
             }
@@ -1328,18 +1331,35 @@
 
         public function createNoIndexingLog(){
             if (is_dir($this->autoCreateDirectory)) {
-                $contentHtaccess = '
-                Options -Indexes
-                AllowOverride All
-                ';
-                $this->saveFile($this->autoCreateDirectory . DIRECTORY_SEPARATOR . '.htaccess', 'w', $contentHtaccess);
+                
+                $contentHtaccess = "Options -Indexes\r\nAllowOverride All";
+
+                $contentHtaccess = trim($contentHtaccess);
+
+                $htaccessFile = $this->autoCreateDirectory . DIRECTORY_SEPARATOR . '.htaccess';
+
+                if (!file_exists($htaccessFile)) {
+                    $createFileHtaccess = $this->createFile($htaccessFile, 'w', $contentHtaccess);
+                    if ($createFileHtaccess) {
+                        //something
+                    }else{
+                        //echo 'failed creating .htaccess file in '. $this->autoCreateDirectory;
+                    }
+                }else{
+                    $createFileHtaccess = $this->saveFile($htaccessFile, 'w', $contentHtaccess);
+                    if ($createFileHtaccess) {
+                        //something
+                    }else{
+                        //echo 'failed creating .htaccess file in '. $this->autoCreateDirectory;
+                    }
+                }
+            }else{
+                //something
             }
         }
 
-
         // Something
     }
-
 
     // ins system
     $webTools = new webTools();
@@ -4254,7 +4274,7 @@
     // check input login
     $pass_formlogin = isset($_POST['password_login']) ? $_POST['password_login'] : null;
     if ($webTools->login_auth($pass_formlogin)) {
-        
+        // login true
         $webTools->redirect($webTools->baseLink);
 
     } else {
@@ -4982,10 +5002,6 @@
                                 <div class="col-md-12">
                         '. $setViewSub;
 
-
-
-
-
                         // check potential malware infection for notice
                         /* 
                             one 0-30
@@ -5095,8 +5111,6 @@
                     echo "<div><div class='badge badge-danger text-white'>Failed getting file logs in [$autoCreateScan]. Directory not found.</div></div>";
                 }
             }
-
-            
 
             else {
                 dashboardPage($webTools);

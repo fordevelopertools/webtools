@@ -1,4 +1,15 @@
 
+Release v 1.5.2
+
+#update Features
+- upgrade authentication password login system. Now, password encrypt by password_hash() DEFAULT PASSWORD.
+- Add Improve In Malware Scan Feature. You can filter by boxed potential on clicked.
+
+#Fix Bugs
+- .htaccess file cant auto create in folder scan logs.
+
+---------------------------------------
+
 Release v 1.5.1
 
 #update Features

@@ -5,11 +5,11 @@ You can use the webtools.php file directly. All features can be accessed in one 
 Upload it to the destination server and you can now access it via your link path.
 
 
-Latest version now 1.5.1
+Latest version now 1.5.2
 
 Now, You can set theme.
 
-Default Password : root!
+Default Password : @rootuser
 
 Structure of File webtools.php
 <br />
@@ -17,13 +17,15 @@ Structure of File webtools.php
 |<br />
 |--- Run the required code first<br />
 |<br />
-|--- all the functions needed in the system<br />
+|--- All the functions needed in the system<br />
 |<br />
-|--- dashboard function to render the whole view<br />
+|--- Running first action by system function<br />
 |<br />
-|--- login function to create login view<br />
+|--- Dashboard function to render the whole view<br />
 |<br />
-|--- all data request actions are in this section<br />
+|--- Login function to create login view<br />
+|<br />
+|--- All data request actions are in this section<br />
 |<br />
 
 

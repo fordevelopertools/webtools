@@ -1,0 +1,3 @@
+- htaccess file cant auto create in folder scan logs -> fix
+- encrypt password login for secure access webtools. Encrypt by password_hash() PASSWORD_DEFAULT -> ok
+- folder list in ontyping text in input form -> progress
