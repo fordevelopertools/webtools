@@ -1,3 +1,8 @@
 - htaccess file cant auto create in folder scan logs -> fix
 - encrypt password login for secure access webtools. Encrypt by password_hash() PASSWORD_DEFAULT -> ok
-- folder list in ontyping text in input form -> progress
+- folder list in ontyping text in input form -> ok
+- custom payload by user -> progress
+- linked, you can scan directory from file scan feature. open file in file manager, open text-editor -> ok
+- linked, you can scan directory from file manager feature -> ok
+
+define(‘ALLOW_UNFILTERED_UPLOADS’, true);

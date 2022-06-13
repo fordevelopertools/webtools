@@ -2,7 +2,7 @@
     /* 
         - CREATE BY FORDEVELOPERTOOLS WEB DEVELOPER TEAM
         - AUTHOR: NUR SHODIK ASSALAM
-        - VERSION  1.5.2
+        - VERSION  1.5.3
         - RELEASE 5-20-2022
         - UPDATE 06-06-2022
     */
@@ -818,25 +818,52 @@
             
         }
 
-        public function listDir($setDir = null){
+        public function listDir($setDir = null, $getItemType = null){
 
+            $getItemType = $getItemType !== null ? $getItemType : 'both';
             $setDir = $setDir;
             $listItemDir = [];
-            if(is_dir(trim($setDir)) && trim($setDir) !== ''){
 
+            if(is_dir(trim($setDir)) && trim($setDir) !== ''){
 
                 $openDir = opendir($setDir);
                 while ($getdirItem = readdir($openDir)) {
                     $itemPath = $setDir . DIRECTORY_SEPARATOR . $getdirItem;
                     $itemName = $getdirItem;
-                    $listItemDir[] = [
-                        'item_name'     =>  $itemName,
-                        'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
-                        'item_path'     =>  $itemPath,
-                        'item_mime'     =>  @mime_content_type($itemPath),
-                        'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
-                        'item_size'     =>  @filesize($itemPath) 
-                    ];
+                    if ($getItemType == 'directory') {
+                        if (is_dir($itemPath)) {
+                            
+                            $listItemDir[] = [
+                                'item_name'     =>  $itemName,
+                                'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
+                                'item_path'     =>  $itemPath,
+                                'item_mime'     =>  @mime_content_type($itemPath),
+                                'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
+                                'item_size'     =>  @filesize($itemPath) 
+                            ];
+                        }
+                       
+                    } elseif ($getItemType == 'file') {
+                        if (is_file($itemPath)) {
+                            $listItemDir[] = [
+                                'item_name'     =>  $itemName,
+                                'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
+                                'item_path'     =>  $itemPath,
+                                'item_mime'     =>  @mime_content_type($itemPath),
+                                'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
+                                'item_size'     =>  @filesize($itemPath) 
+                            ];
+                        }
+                    } else {
+                        $listItemDir[] = [
+                            'item_name'     =>  $itemName,
+                            'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
+                            'item_path'     =>  $itemPath,
+                            'item_mime'     =>  @mime_content_type($itemPath),
+                            'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
+                            'item_size'     =>  @filesize($itemPath) 
+                        ];
+                    }
                 }
 
                 return $listItemDir;
@@ -1335,7 +1362,6 @@
                 $contentHtaccess = "Options -Indexes\r\nAllowOverride All";
 
                 $contentHtaccess = trim($contentHtaccess);
-
                 $htaccessFile = $this->autoCreateDirectory . DIRECTORY_SEPARATOR . '.htaccess';
 
                 if (!file_exists($htaccessFile)) {
@@ -1357,7 +1383,6 @@
                 //something
             }
         }
-
         // Something
     }
 
@@ -1380,10 +1405,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WEB TOOLS</title>
     <?= $webTools->loadMetaLink(); ?>
+
+    <?php if($webTools->pageActive() == 'text-editor'){ ?>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rainbow-code@2.1.7/themes/css/paraiso-dark.css" integrity="sha256-tIDos/4CvlyYUH34vy98sohTuDvmUTlu2ZsZMD4x9EU=" crossorigin="anonymous"> -->
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rainbow-code@2.1.7/themes/css/all-hallows-eve.css" integrity="sha256-dI4/9VdeYvon9cJ6+EyeVpJraFk1ucyDKI3pPx2CkOI=" crossorigin="anonymous"> -->
-    
-    <?php if($webTools->pageActive() == 'text-editor'){ ?>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.dracula.min.css" integrity="sha256-x08qZTgWks4/JUCMKhc1k8HSSt6R+cmaHy8sGT0/g7c=" crossorigin="anonymous"> -->
     <?php } else {
         // something
@@ -1878,11 +1903,35 @@
             background: #330000;
         }
 
-        
+        .item-list-custom {
+            border: 2px solid grey;
+            display: block;
+            position: absolute;
+            top: 40px;
+            left: 0px;
+            min-width: 350px;
+            max-width: 350px;
+            background: var(--primary-color);
+            border-radius: 6px;
+            z-index: 10;
+            display: none;
+            cursor: pointer;
+        }
 
-        
+        .close-btn-list-dir, .item-list-group {
+            padding: 8px;
+        }
 
-        
+        .item-list-group .set-item-list {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            font-size: var(--body-text-header-font-size);
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        .item-list-group {
+            max-height: 350px;
+        }
 
     </style>
 </head>
@@ -2279,7 +2328,18 @@
 
                                 <form id="file-scan-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="scan_dir" id="scan_dir" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" required/>
+                                        <input type="text" onkeyup="autoCompleteSelectFolder('.filescan_dir_autocomplete', '#directory-list-autocomplete', 'text', 'directory');" name="scan_dir" id="scan_dir" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="filescan_dir_autocomplete form-control bg-transparent text-white" required/>
+                                        <div class="item-list-custom" id="directory-list-autocomplete">
+                                            <div class="text-right close-btn-list-dir">
+                                                <span onclick="hideElem('#directory-list-autocomplete');">
+                                                    <i class="fa-solid fa-xmark text-white"></i>
+                                                </span>
+                                            </div>
+                                            <div class="item-list-group overflow-active">
+                                                <div>Loading...</div>
+                                            </div>
+                                        </div>
+
                                         <input type="text" class="form-control" name="scan_payload" id="scan_payload" placeholder="example.php (use ';' for multiple)" class="bg-transparent text-white" />
                                         <select class="form-control" name="scan_for" id="scan_for" style="color: grey;" required/>
                                             <option selected disabled/>Scan For...</option>
@@ -2363,7 +2423,18 @@
 
                                 <form id="file-mgr-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= isset($_GET['dir']) && trim($_GET['dir']) !=='' ? trim($_GET['dir']) : $webTools->dirLoc; ?>" class="bg-transparent text-white" required/>
+                                        <input type="text" onkeyup="autoCompleteSelectFolder('.scan_dir_mgr_autocomplete', '#directory-list-autocomplete', 'text', 'directory');" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= isset($_GET['dir']) && trim($_GET['dir']) !=='' ? trim($_GET['dir']) : $webTools->dirLoc; ?>" class="form-control scan_dir_mgr_autocomplete bg-transparent text-white" required/>
+                                        <div class="item-list-custom" id="directory-list-autocomplete">
+                                            <div class="text-right close-btn-list-dir">
+                                                <span onclick="hideElem('#directory-list-autocomplete');">
+                                                    <i class="fa-solid fa-xmark text-white"></i>
+                                                </span>
+                                            </div>
+                                            <div class="item-list-group overflow-active">
+                                                <div>Loading...</div>
+                                            </div>
+                                        </div>
+
                                         <div class="input-group-append">
                                             <button id="submitFileMgr" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
@@ -2660,7 +2731,18 @@
 
                                 <form id="text-editor-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" required/>
+                                        <input type="text" onkeyup="autoCompleteSelectFolder('.texteditor_dir_autocomplete', '#directory-list-autocomplete', 'text', 'both');" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="texteditor_dir_autocomplete form-control bg-transparent text-white" required/>
+                                        <div class="item-list-custom" id="directory-list-autocomplete">
+                                            <div class="text-right close-btn-list-dir">
+                                                <span onclick="hideElem('#directory-list-autocomplete');">
+                                                    <i class="fa-solid fa-xmark text-white"></i>
+                                                </span>
+                                            </div>
+                                            <div class="item-list-group overflow-active">
+                                                <div>Loading...</div>
+                                            </div>
+                                        </div>
+
                                         <div class="input-group-append">
                                             <button id="submitTextEditor" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
@@ -2697,7 +2779,18 @@
                         <div class="card elem-content bg-prim text-white">
                             <div class="card-header">
                                 <div class="input-group mb-3 bg-transparent">
-                                    <input type="text" class="form-control" name="dir_for_scan_malware" id="dir_for_scan_malware" placeholder="Directory Location..." value="<?= isset($_GET['directory_location']) && trim($_GET['directory_location']) !== '' ? trim($_GET['directory_location']): './'; ?>" class="bg-transparent text-white" required/>
+
+                                    <input type="text" class="form-control" onkeyup="autoCompleteSelectFolder('#dir_for_scan_malware', '#directory-list-autocomplete', 'text', 'directory');" name="dir_for_scan_malware" id="dir_for_scan_malware" placeholder="Directory Location..." value="<?= isset($_GET['directory_location']) && trim($_GET['directory_location']) !== '' ? trim($_GET['directory_location']): '.'. DIRECTORY_SEPARATOR; ?>" class="bg-transparent text-white" required/>
+                                    <div class="item-list-custom" id="directory-list-autocomplete">
+                                        <div class="text-right close-btn-list-dir">
+                                            <span onclick="hideElem('#directory-list-autocomplete');">
+                                                <i class="fa-solid fa-xmark text-white"></i>
+                                            </span>
+                                        </div>
+                                        <div class="item-list-group overflow-active">
+                                            <div>Loading...</div>
+                                        </div>
+                                    </div>
                                     
                                     <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps;.htaccess" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" required/>
 
@@ -3099,9 +3192,10 @@
             } else if (getSetThemeSession == 'red') {
                 var cssSet = cssSetRed;
             } else if (getSetThemeSession == 'kimbiedark') {
-            var cssSet = cssSetKimbieDark;
-        }
+                var cssSet = cssSetKimbieDark;
+            }
             
+            // ----- SOMETHING
             
             else {
                 var cssSet = cssSetPaleNight;
@@ -3124,21 +3218,6 @@
         window.getSelection().removeAllRanges();
         alert('copied.');
     }
-
-    // function copy_text(containerid) {
-    //     if (document.selection) {
-    //         var range = document.body.createTextRange();
-    //         range.moveToElementText(document.getElementById(containerid));
-    //         range.select().createTextRange();
-    //         document.execCommand("copy");
-    //     } else if (window.getSelection) {
-    //         var range = document.createRange();
-    //         range.selectNode(document.getElementById(containerid));
-    //         window.getSelection().addRange(range);
-    //         document.execCommand("copy");
-    //         alert("Text has been copied.");
-    //     }
-    // }
 
     // popup
     function openPopup(popup = null){
@@ -3189,7 +3268,6 @@
         }
     }
 
-
     function removeElem(elem = null){
         if (elem == null) {
             return null;
@@ -3205,6 +3283,67 @@
             $(elemID).val('');
         }
     }
+
+    function setValue(elemSet = null, valueSet = null){
+        if (elemSet == null || valueSet == null) {
+            return null;
+        } else {
+            valueSet = atob(valueSet);
+            $(elemSet).val(valueSet);
+        }
+    }
+
+    function setValueDirAutoComplete(selectElem = null, listItemElem = null, typeInput = null, typeGetItemList = null, elemSet = null, valueSet = null){
+        if (elemSet == null || valueSet == null) {
+            return null;
+        } else {
+            valueSet = atob(valueSet);
+            $(elemSet).val(valueSet);
+            autoCompleteSelectFolder(selectElem, listItemElem, typeInput, typeGetItemList);
+        }
+    }
+
+    // Autocomplete selection folder
+    function autoCompleteSelectFolder(selectElem = null, listItemElem = null, typeInput = null, typeGetItemList = null){
+
+        const elemListSet = document.querySelector(listItemElem);
+        elemListSet.style.display = 'block';
+
+        // get-dir-item-list -> link request
+        // get_item_type   -> get
+        // set_directory_list -> post
+
+        var elemShowItems = listItemElem + ' .item-list-group';
+        var set_directory_list = $(selectElem).val(); 
+        var get_item_type = typeGetItemList;
+
+        //$(selectElem).attr("disabled", true);
+
+        $(elemShowItems).html('<div class="box-msg"><div class="loadingItemsGet"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></div>');
+
+        $.ajax({
+            type: 'POST',
+            url: "<?= $webTools->baseLink; ?>?page=get-dir-item-list&get_item_type=" + get_item_type,
+            dataType: 'html',
+            contentType: 'application/x-www-form-urlencoded',
+            cache: false, 
+            data: {
+                set_directory_list: set_directory_list,
+                select_elem: selectElem
+            },
+            success: function(data){
+                removeElem('.loadingItemsGet');
+                //$(selectElem).attr("disabled", false);
+                $(elemShowItems).html(data); 
+            },
+            error: function (e) {
+                removeElem('.loadingItemsGet');
+                //$(selectElem).attr("disabled", false);
+                $(elemShowItems).html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
+            }
+        });
+    }
+    
 
     function clearLogTerminal(elemId = null){
         removeElem(elemId);
@@ -4357,17 +4496,33 @@
                         if ($value['type'] == 'folder') {
                             echo '
                             <div class="row">
-                                <div class="col-md-12 mt-1 mb-1"><strong>Type: '. $value['type'] .'</strong> | <span onclick=\'setValueTo("#scan_dir", "'. base64_encode($value['item']) .'");\' class="badge badge-primary text-white set-scan-file">Set Search</span></div>
+                                <div class="col-md-12 mt-1 mb-1"><strong>Type: '. $value['type'] .'</strong> | 
+                                    <span onclick=\'setValueTo("#scan_dir", "'. base64_encode($value['item']) .'");\' class="badge badge-primary text-white set-scan-file">Set Search</span>
+                                     | 
+                                    <a href="'. $webTools->baseLink .'?page=malware-perm-scan&directory_location='. trim($value['item']) .'" target="_blank">
+                                        <span class="badge badge-default bg-sec">Scan</span>
+                                    </a>
+                                     | 
+                                    <a href="'. $webTools->baseLink .'?page=file-manager&dir='. trim($value['item']) .'" target="_blank">
+                                        <span class="badge badge-info">Open in File Manager</span>
+                                    </a>
+                                </div>
                             </div>
                             ';
                         }else{
                             echo '
                             <div class="row">
-                                <div class="col-md-12 mt-1 mb-1"><strong>Type: '. $value['type'] .'</strong> | <a href="'. $webTools->baseLink .'?page=download&file='. $value['item'] .'"><span class="badge badge-success text-white set-scan-file">Download</span></a></div>
+                                <div class="col-md-12 mt-1 mb-1">
+                                    <strong>Type: '. $value['type'] .'</strong> | 
+                                    <a href="'. $webTools->baseLink .'?page=download&file='. $value['item'] .'"><span class="badge badge-success text-white set-scan-file">Download</span></a>
+                                     | 
+                                    <a href="'. $webTools->baseLink .'?page=text-editor&file='. trim($value['item']) .'" target="_blank">
+                                        <span class="badge badge-primary">Open</span>
+                                    </a>
+                                </div>
                             </div>
                             ';
                         }
-                        
                         echo '</div>';
                         $nox++;
                     }
@@ -4453,7 +4608,12 @@
                                 ';
                             }
 
-                            echo'<span class="badge badge-info" onclick="copy_text(item_name_'. $xCounter .');">Copy Path</span>
+                            echo'
+                            <a href="'. $webTools->baseLink .'?page=malware-perm-scan&directory_location='. trim($valueItem['item_path']) .'" target="_blank">
+                                <span class="badge badge-default bg-sec">Scan</span>
+                            </a>
+                             | 
+                             <span class="badge badge-info" onclick="copy_text(item_name_'. $xCounter .');">Copy Path</span> 
                             </div>
                             ';
 
@@ -4495,8 +4655,7 @@
                                      </a>
                                      | 
                                     <span class="badge badge-danger" onclick="delete_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Delete</span>
-                                    
-                                    | 
+                                     | 
                                     <a href="./'. $valueItem['item_path'] .'" target="_blank">
                                         <span class="badge badge-warning">Show</span>
                                     </a>
@@ -4989,7 +5148,7 @@
                                 <span class="badge badge-danger" onclick="delete_file_malware_scan(\'#list-item-scan-log_'. $xCounter .'\', \''. base64_encode($valueItemResults['file_path']) .'\');">Delete</span>
                                  | 
                                 <a href="'. $webTools->baseLink .'?page=file-manager&dir='. dirname($valueItemResults['file_path']) .'" target="_blank">
-                                    <span class="badge badge-info">Open Location</span>
+                                    <span class="badge badge-info">Open in File Manager</span>
                                 </a>
                             </div>
                         </div>
@@ -5103,14 +5262,49 @@
                             echo '</div>'; 
                             $xCounter++;                      
                         }
-                        
                     } else {
                         echo "<div><div class='badge badge-warning text-white'>Failed getting file logs in [$autoCreateScan]. File not Found. Scan Now for Getting Logs.</div></div>";
                     }
                 } else {
                     echo "<div><div class='badge badge-danger text-white'>Failed getting file logs in [$autoCreateScan]. Directory not found.</div></div>";
                 }
+            } elseif($pageShow == 'get-dir-item-list'){
+
+                $getItemType = trim($_GET['get_item_type']);
+                $setDirectory = trim($_POST['set_directory_list']);
+                $selectElem = trim($_POST['select_elem']);
+                
+                /* 
+                    RESPONSE
+                    'item_name'
+                    'item_type'
+                    'item_path'
+                    'item_mime'
+                    'item_time'
+                    'item_size
+                */
+                $reqGetItemDir = $webTools->listDir($setDirectory, $getItemType);
+                if ($reqGetItemDir) {
+                   foreach ($reqGetItemDir as $keyItem => $valItem) {
+                        echo '
+                        <div class="row set-item-list">
+                            <div class="col-10">
+                                <div onclick="setValueDirAutoComplete(\''. trim($selectElem) .'\', \'#directory-list-autocomplete\', \'text\', \''. trim($getItemType) .'\', \''. trim($selectElem) .'\', \''. base64_encode(trim($valItem['item_path'])) .'\');">
+                                    '. $valItem['item_name'] .'
+                                </div>
+                            </div>
+                            <div class="col-2">
+                                '. (trim($valItem['item_type']) == 'directory' ? 'Dir' : 'File') .'
+                            </div>
+                        </div>
+                        ';
+                   }
+                }else{
+                    echo "<div><div class='badge badge-danger text-white'>0 Results or Failed in [$setDirectory].</div></div>";
+                }
             }
+
+            #-------SOMETHING REQUEST ACTION
 
             else {
                 dashboardPage($webTools);
@@ -5120,5 +5314,4 @@
             loginPage($webTools);
         }
     }
-
 ?>

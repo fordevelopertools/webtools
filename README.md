@@ -5,7 +5,7 @@ You can use the webtools.php file directly. All features can be accessed in one 
 Upload it to the destination server and you can now access it via your link path.
 
 
-Latest version now 1.5.2
+Latest version now 1.5.3
 
 Now, You can set theme.
 
