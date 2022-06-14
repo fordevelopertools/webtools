@@ -1,54 +1,37 @@
 <?php
+
     /* 
         - CREATE BY FORDEVELOPERTOOLS WEB DEVELOPER TEAM
         - AUTHOR: NUR SHODIK ASSALAM
-        - VERSION  1.5.3
+        - VERSION  1.4 BETA
         - RELEASE 5-20-2022
-        - UPDATE 06-06-2022
+        - UPDATE 5-26-2022
     */
 
-    //started First
-    //set display error : default not show
-    // ini_set('display_errors', 1); 
-    // ini_set('display_startup_errors', 1); 
-    // error_reporting(E_ALL);
-
+    // started First
     session_start();
     date_default_timezone_set('asia/jakarta');
-
-    // auto create directory for log, session and any.
-    $autoCreateDirectory = './fordevelopertools_app';
-    $autoCreateScan = './fordevelopertools_app/scan';
-    if (!is_dir($autoCreateDirectory)) {
-        @mkdir($autoCreateDirectory);
-    }
-
-    if (is_dir($autoCreateDirectory)) {
-        @mkdir($autoCreateScan);
-    }
+    ini_set('display_errors', 1); 
+    ini_set('display_startup_errors', 1); 
+    error_reporting(E_ALL);
 
     class WebTools
     {   
         // user default config
         public $userImage = 'https://raw.githubusercontent.com/fordevelopertools/webtools/89bb08d74b725a17704ffb5cafa3c6f4e8acd7a7/logo.png';
         public $userName = 'FORDEVELOPERTOOLS';
-        // password encrypt by password_hash() PASSWORD_DEFAULT.
-        // default password is "@rootuser".
-        public $authPass = '$2y$10$4d8In4hdIHoPr1lPX.8XRegTfLDNgJxgi72gOOiAGJLwCmJ02ykoq';
+        public $authPass = 'root!';
         public $loadImage = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/loading.gif';
 
         // directory and file default config
         public $dirLoc = __DIR__;
         public $fileLoc = __FILE__;
         public $baseLink = './webtools.php';
-        public $autoCreateDirectory = './fordevelopertools_app';
-        public $autoCreateScan = './fordevelopertools_app/scan';
 
         // scan default config
         public $defaultExCheck = '.php;.phtml;.php3;.php4;.php5;.phps;.html;.css;.js';
         public $defaultOpenFileSize = 1048576; // 2MB
         public $malwareScanPayload = 'https://raw.githubusercontent.com/fordevelopertools/webtools/main/malware-perm-scan-payload/payload.json';
-        public $formatLog = '.fdplog';
 
         
 
@@ -80,7 +63,7 @@
                 } else {
                     $setSeparator = trim($prefix) == '/' || trim($prefix) == '\\' ? 
                         substr($textPrefix, 0, (strlen($textPrefix) - 1)) : $textPrefix;
-                    return $setSeparator;
+                        return $setSeparator;
                 }
             }
         }
@@ -289,24 +272,22 @@
             }
         }
 
-        public function login_auth($passInput = null){
-            if (trim($passInput) !== null) {
-                if (password_verify(trim($passInput), $this->authPass)) {
-                    $_SESSION['login']  =  $passInput;
-                    return true;
-                } else {
-                    return false;
-                }
+        public function checkLogin(){
+            if (isset($_SESSION['login'])) {
+                return true;
             } else {
                 return false;
             }
         }
 
-        public function checkLogin(){
-            if (isset($_SESSION['login'])) {
-                $this->passInput = trim($_SESSION['login']);
-                $auth = $this->login_auth($this->passInput);
-                return $auth;
+        public function login_auth($passInput = null){
+            if (trim($passInput) !== null) {
+                if (trim($passInput) == $this->authPass) {
+                    $_SESSION['login']  =  $passInput;
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
                 return false;
             }
@@ -424,7 +405,7 @@
             echo '
                 <style>
                     .reload-page {
-                        color: var(--color-theme);
+                        color: white;
                         background: var(--primary-color);
                         padding: 15px;
                         position: fixed;
@@ -438,10 +419,8 @@
                         align-items: center;
                         justify-content: center;
                         text-decoration: none;
-                        border: 2px solid var(--color-theme);
-                        z-index: 999;
+                        border: 2px solid white;
                     }
-
                     .reload-page:hover {
                         color: #6c757d;
                     }
@@ -461,7 +440,6 @@
                         --secondary-color: #292D3E;
                         --body-text-header-font-size: 16px;
                         --body-text-content-font-size: 14px;
-                        --color-theme: white;
                     }
                     
                     body {
@@ -473,30 +451,6 @@
                     '. $addCss .'
 
                 </style>
-            ';
-        }
-
-        public function setThemeCss(){
-            echo '
-                .set-theme {
-                    color: var(--color-theme);
-                    background: var(--primary-color);
-                    padding: 15px;
-                    position: fixed;
-                    bottom: 70px;
-                    right: 20px;
-                    border-radius: 50%;
-                    height: 40px;
-                    width: 40px;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    text-decoration: none;
-                    border: 2px solid var(--color-theme);
-                    z-index: 999;
-                    cursor: pointer;
-                }
             ';
         }
 
@@ -818,52 +772,25 @@
             
         }
 
-        public function listDir($setDir = null, $getItemType = null){
+        public function listDir($setDir = null){
 
-            $getItemType = $getItemType !== null ? $getItemType : 'both';
             $setDir = $setDir;
             $listItemDir = [];
-
             if(is_dir(trim($setDir)) && trim($setDir) !== ''){
+
 
                 $openDir = opendir($setDir);
                 while ($getdirItem = readdir($openDir)) {
                     $itemPath = $setDir . DIRECTORY_SEPARATOR . $getdirItem;
                     $itemName = $getdirItem;
-                    if ($getItemType == 'directory') {
-                        if (is_dir($itemPath)) {
-                            
-                            $listItemDir[] = [
-                                'item_name'     =>  $itemName,
-                                'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
-                                'item_path'     =>  $itemPath,
-                                'item_mime'     =>  @mime_content_type($itemPath),
-                                'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
-                                'item_size'     =>  @filesize($itemPath) 
-                            ];
-                        }
-                       
-                    } elseif ($getItemType == 'file') {
-                        if (is_file($itemPath)) {
-                            $listItemDir[] = [
-                                'item_name'     =>  $itemName,
-                                'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
-                                'item_path'     =>  $itemPath,
-                                'item_mime'     =>  @mime_content_type($itemPath),
-                                'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
-                                'item_size'     =>  @filesize($itemPath) 
-                            ];
-                        }
-                    } else {
-                        $listItemDir[] = [
-                            'item_name'     =>  $itemName,
-                            'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
-                            'item_path'     =>  $itemPath,
-                            'item_mime'     =>  @mime_content_type($itemPath),
-                            'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
-                            'item_size'     =>  @filesize($itemPath) 
-                        ];
-                    }
+                    $listItemDir[] = [
+                        'item_name'     =>  $itemName,
+                        'item_type'     =>  is_dir($itemPath) ? 'directory': 'file',
+                        'item_path'     =>  $itemPath,
+                        'item_mime'     =>  @mime_content_type($itemPath),
+                        'item_time'     =>  date ("F d Y H:i:s.", @filemtime($itemPath)),
+                        'item_size'     =>  @filesize($itemPath) 
+                    ];
                 }
 
                 return $listItemDir;
@@ -1152,7 +1079,7 @@
             // default set
             $scanPayload = $scanPayload == null ? 
                 $this->defaultExCheck : $scanPayload;
-            $maxSizeCheck = $maxSizeCheck == null || $maxSizeCheck == ''? $this->defaultOpenFileSize : $maxSizeCheck;
+            $maxSizeCheck = $maxSizeCheck = null || $maxSizeCheck == ''? $this->defaultOpenFileSize : 0;
 
             // get payload set
             $malwarePayloadSet = file_get_contents($this->malwareScanPayload); 
@@ -1178,7 +1105,6 @@
                     $tempScanning = [];
                     $tempScanning['last_scan'] = date("H:i d-m-Y");
                     $tempScanning['time_start'] = time();
-                    $tempScanning['scan_path'] = $dirScan;
 
                     function check_payload_scan($getFileContentClean, $payloadListItem, $filePath){
                         $checkPosString = $getFileContentClean !== '' ?
@@ -1195,13 +1121,11 @@
                             $shortCode = substr($getFileContentClean, $checkPosString, $strLenMax2);
                             
                             $tempCheckByPayload = [
-                                'level'             =>  $payloadListItem['level'],
-                                'name'              =>  $payloadListItem['name'],
-                                'desc'              =>  $payloadListItem['description'],
-                                'pos'               =>  $checkPosString,
-                                'permission'        =>  $payloadListItem['perm'],
-                                'malware_potential' =>  $payloadListItem['malware_potential'],
-                                'short_script'      =>  $shortCode 
+                                'level'         =>  $payloadListItem['level'],
+                                'name'          =>  $payloadListItem['name'],
+                                'desc'          =>  $payloadListItem['description'],
+                                'pos'           =>  $checkPosString,
+                                'short_script'  =>  $shortCode 
                             ];
 
                             return $tempCheckByPayload;
@@ -1259,8 +1183,6 @@
                                             true : false;
                                         $lvlScan_6 =  $scanLvlPayload == 'normal' || $scanLvlPayload == 'warning' || $scanLvlPayload == 'risk' ? 
                                             true : false;
-                                        $lvlScan_7 =  $scanLvlPayload == 'normal' || $scanLvlPayload == 'risk' ? 
-                                            true : false;
 
                                         if ($lvlScanUser == 1) {
                                             if ($lvlScan_1) {
@@ -1307,15 +1229,6 @@
                                             } else {
                                                 continue;
                                             }
-                                        } elseif ($lvlScanUser == 7) {
-                                            if ($lvlScan_7) {
-                                                $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
-                                                if ($getValCheck !== null) {
-                                                    $resultsScanning[] = $getValCheck;
-                                                }
-                                            } else {
-                                                continue;
-                                            }
                                         } else {
                                             $getValCheck = check_payload_scan($getFileContentClean, $payloadListItem, $filePath);
                                             if ($getValCheck !== null) {
@@ -1334,6 +1247,9 @@
                                     continue;
                                 }
                                 
+
+                                
+
                             } else {
                                 continue;
                             }
@@ -1356,41 +1272,13 @@
             }
         }
 
-        public function createNoIndexingLog(){
-            if (is_dir($this->autoCreateDirectory)) {
-                
-                $contentHtaccess = "Options -Indexes\r\nAllowOverride All";
 
-                $contentHtaccess = trim($contentHtaccess);
-                $htaccessFile = $this->autoCreateDirectory . DIRECTORY_SEPARATOR . '.htaccess';
-
-                if (!file_exists($htaccessFile)) {
-                    $createFileHtaccess = $this->createFile($htaccessFile, 'w', $contentHtaccess);
-                    if ($createFileHtaccess) {
-                        //something
-                    }else{
-                        //echo 'failed creating .htaccess file in '. $this->autoCreateDirectory;
-                    }
-                }else{
-                    $createFileHtaccess = $this->saveFile($htaccessFile, 'w', $contentHtaccess);
-                    if ($createFileHtaccess) {
-                        //something
-                    }else{
-                        //echo 'failed creating .htaccess file in '. $this->autoCreateDirectory;
-                    }
-                }
-            }else{
-                //something
-            }
-        }
         // Something
     }
 
+
     // ins system
     $webTools = new webTools();
-
-    // load first
-    $webTools->createNoIndexingLog();
     
     function dashboardPage($webTools = false) {
 
@@ -1405,42 +1293,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WEB TOOLS</title>
     <?= $webTools->loadMetaLink(); ?>
-
-    <?php if($webTools->pageActive() == 'text-editor'){ ?>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rainbow-code@2.1.7/themes/css/paraiso-dark.css" integrity="sha256-tIDos/4CvlyYUH34vy98sohTuDvmUTlu2ZsZMD4x9EU=" crossorigin="anonymous"> -->
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/rainbow-code@2.1.7/themes/css/all-hallows-eve.css" integrity="sha256-dI4/9VdeYvon9cJ6+EyeVpJraFk1ucyDKI3pPx2CkOI=" crossorigin="anonymous"> -->
+    
+    <?php if($webTools->pageActive() == 'text-editor'){ ?>
     <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/enlighterjs@3.4.0/dist/enlighterjs.dracula.min.css" integrity="sha256-x08qZTgWks4/JUCMKhc1k8HSSt6R+cmaHy8sGT0/g7c=" crossorigin="anonymous"> -->
     <?php } else {
         // something
     }
     ?>
-    <style id="styleMaster">
+    <style>
         @import url('https://fonts.googleapis.com/css2?family=Dosis:wght@200;300;400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css?family=Bungee:wght@100;200;300;400;500;600;700;800');
-
-        <?php $webTools->setThemeCss(); ?>
-
-
-        :root {
-            --primary-color: #1B1E2B;
-            --secondary-color: #292D3E;
-            --body-text-header-font-size: 16px;
-            --body-text-content-font-size: 14px;
-            --color-theme: white;
-            --button-color: white;
-        }
 
         * {
             margin: 0px;
             padding: 0px;
             box-sizing: border-box;
         }
+
+        :root {
+            --primary-color: #1B1E2B;
+            --secondary-color: #292D3E;
+            --body-text-header-font-size: 16px;
+            --body-text-content-font-size: 14px;
+        }
         
         body {
             font-family: "Dosis", cursive;
             background: var(--secondary-color);
             font-size: var(--body-text-content-font-size);
-            color: var(--color-theme);
         }
 
         h1 { font-size: 36px; font-weight: 600; }
@@ -1459,7 +1341,7 @@
             display: block;
             background: var(--primary-color);
             margin-top: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 8px;;
         }
 
         .separator-sec {
@@ -1523,8 +1405,8 @@
         }
 
         .text-label {
-            font-weight: 700 !important;
-            color: var(--color-theme);
+            font-weight: 500;
+            color: #fff;
             font-size: var(--body-text-header-font-size);
         }
 
@@ -1590,7 +1472,6 @@
 
         .tools-name {
             font-size: var(--body-text-header-font-size);
-            font-weight: 600;
         }
 
         .tools-link {
@@ -1657,7 +1538,7 @@
 
         #textEditor {
             background: var(--primary-color);
-            color: var(--color-theme);
+            color: white;
             width: 100%;
             border: 2px solid var(--secondary-color);
             font-size: var(--body-text-header-font-size);
@@ -1694,243 +1575,6 @@
             font-size: var(--body-text-content-font-size);
             margin-top: 3px;
             margin-bottom: 3px;
-        }
-
-        .circle {
-            border-radius: 50%;
-        }
-
-        .scan-item-circle {
-            width: 150px;
-            height: 150px;
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            flex-direction: column;
-            cursor: pointer;
-            user-select: none;
-            border: 5px double blue;
-            border-radius: 50%;
-        }
-
-        .scan-item-circle-anim {
-            border: 3px solid white;
-            animation: border-anim-shadow 3s 0s infinite linear alternate;
-        }
-
-        .scan-item-circle:active {
-            border: 5px double white;
-        }
-
-        .scan-item-circle-complete {
-            border: 5px double #00ff40;
-        }
-
-        @keyframes border-anim {
-            0% {
-                border: 5px double var(--secondary-color);
-            }
-            100% {
-                border: 5px double white;
-            }
-        }
-
-        @keyframes border-anim-shadow {
-            0% {
-                box-shadow: 0px 0px 10px 2px white;
-                
-            }
-            25% {
-                box-shadow: 0px 0px 10px 4px white;
-                
-            }
-            50% {
-                box-shadow: 0px 0px 10px 6px grey;
-            }
-            75% {
-                box-shadow: 0px 0px 10px 8px #007BFF;
-            }
-            100% {
-                box-shadow: 0px 0px 10px 10px #007BFF;
-            }
-
-        }
-
-        .scan-item-circle:hover {
-            transition: 0.2s ease-out;
-            box-shadow: 0px 0px 5px white;
-        }
-
-        .icon-scan-size {
-            font-size: 50px;
-        } 
-        
-        .text-scan-header {
-            font-size: var(--body-text-header-font-size);
-            margin-top: 6px;
-        }
-
-        .anim-rotate {
-            animation: rotate-x 5s 0s infinite linear alternate;  
-        }
-
-        @keyframes rotate-x {
-            0% {
-                transform: rotateY(0deg);
-            }
-            100% {
-                transform: rotateY(360deg);
-            }
-        }
-
-        .indicator-color {
-            padding-left: 9px;
-            padding-right: 9px;
-            display: inline;
-            margin-right: 10px;
-            border-radius: 3px;
-        }
-        .indicator-color-one {
-            background-color: #00ff40;
-        }
-
-        .indicator-color-two {
-            background-color: #f9ec02;
-        }
-
-        .indicator-color-three {
-            background-color: #faaf01;
-        }
-
-        .indicator-color-four {
-            background-color: #f96b02;
-        }
-
-        .indicator-color-five {
-            background-color: #fb0000;
-        }
-
-        .indicator-color-six {
-            background-color: #2b3cd0;
-        }
-
-        .indicator-color-seven {
-            background-color: #8c43b8;
-        }
-        
-        .scan-info-box {
-            min-height: 250px;
-            max-height: 250px;
-        }
-
-        .item-theme {
-            padding-top: 10px;
-            padding-bottom: 10px;
-            border-bottom: 2px dotted grey;
-            font-size: var(--body-text-header-font-size);
-            text-transform: uppercase;
-        }
-
-        .wrapper-scan-bar-counter {
-            padding-top: 10px;
-            padding-bottom: 30px;
-        }
-
-        .circle-item {
-            border: 4px double #00FF40;
-        }
-
-        .box-item-scan-counter {
-            color: var(--color-theme);
-            min-height: 70px;
-            font-size: var(--body-text-header-font-size);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-        }
-        
-        .box-item-scan-counter .box-item-scan-counter-header {
-            font-size: 42px !important;
-            font-weight: 600;
-        }
-
-        .box-theme-color {
-            padding-left: 8px;
-            padding-right: 8px; 
-            margin-right: 10px;
-            border: 3px solid grey;
-        } 
-        
-        .box-theme-color-white {
-            background: white;
-        }
-
-        .box-theme-color-pale-night {
-            background: #1B1E2B;
-        }
-
-        .box-theme-color-ocean-high {
-            background: #090B10;
-        }
-
-        .box-theme-color-material-high {
-            background: #192227;
-        }
-
-        .box-theme-color-black {
-            background: black;
-        }
-
-        .box-theme-color-night-blue {
-            background: #001C40;
-        }
-
-        .box-theme-color-solaris-dark {
-            background: #00212B;
-        }
-
-        .box-theme-color-abyss {
-            background: #060621;
-        }
-
-        .box-theme-kimbie-dark {
-            background: #362712;
-        }
-
-        .box-theme-red {
-            background: #330000;
-        }
-
-        .item-list-custom {
-            border: 2px solid grey;
-            display: block;
-            position: absolute;
-            top: 40px;
-            left: 0px;
-            min-width: 350px;
-            max-width: 350px;
-            background: var(--primary-color);
-            border-radius: 6px;
-            z-index: 10;
-            display: none;
-            cursor: pointer;
-        }
-
-        .close-btn-list-dir, .item-list-group {
-            padding: 8px;
-        }
-
-        .item-list-group .set-item-list {
-            padding-top: 12px;
-            padding-bottom: 12px;
-            font-size: var(--body-text-header-font-size);
-            border-bottom: 2px solid var(--secondary-color);
-        }
-
-        .item-list-group {
-            max-height: 350px;
         }
 
     </style>
@@ -2014,7 +1658,7 @@
                                 <div>
                                 <?php 
                                     if ($webTools->chekRoot()) {
-                                        echo "<div class='text-white'>Writeable</div>";
+                                        echo "<div class='text-green'>Writeable</div>";
                                     } else {
                                         echo "<div class='text-danger'>No Writeable</div>";
                                     }
@@ -2026,7 +1670,7 @@
                                 <div>
                                 <?php 
                                     if ($webTools->cekdir()) {
-                                        echo "<div class='text-white'>Writeable</div>";
+                                        echo "<div class='text-green'>Writeable</div>";
                                     } else {
                                         echo "<div class='text-danger'>No Writeable</div>";
                                     }
@@ -2281,11 +1925,11 @@
                                 <form id="terminal-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
 
-                                        <input type="text" hidden="hidden" class="form-control d-none" name="info_post" id="info_post" value="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" required/>
+                                        <input type="text" hidden="hidden" class="form-control d-none" name="info_post" id="info_post" value="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" style="color: white !important;" required/>
 
-                                        <input type="text" class="form-control" name="command" id="command" placeholder="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" required/>
+                                        <input type="text" class="form-control" name="command" id="command" placeholder="<?= @get_current_user(); ?>-<?= @getcwd(); ?>~" class="bg-transparent text-white" style="color: white !important;" required/>
                                         <div class="input-group-append">
-                                            <button id="submitCommand" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitCommand" class="btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
                                             </button>
                                         </div>
@@ -2328,19 +1972,8 @@
 
                                 <form id="file-scan-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" onkeyup="autoCompleteSelectFolder('.filescan_dir_autocomplete', '#directory-list-autocomplete', 'text', 'directory');" name="scan_dir" id="scan_dir" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="filescan_dir_autocomplete form-control bg-transparent text-white" required/>
-                                        <div class="item-list-custom" id="directory-list-autocomplete">
-                                            <div class="text-right close-btn-list-dir">
-                                                <span onclick="hideElem('#directory-list-autocomplete');">
-                                                    <i class="fa-solid fa-xmark text-white"></i>
-                                                </span>
-                                            </div>
-                                            <div class="item-list-group overflow-active">
-                                                <div>Loading...</div>
-                                            </div>
-                                        </div>
-
-                                        <input type="text" class="form-control" name="scan_payload" id="scan_payload" placeholder="example.php (use ';' for multiple)" class="bg-transparent text-white" />
+                                        <input type="text" class="form-control" name="scan_dir" id="scan_dir" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <input type="text" class="form-control" name="scan_payload" id="scan_payload" placeholder="example.php (use ';' for multiple)" class="bg-transparent text-white" style="color: white !important;" />
                                         <select class="form-control" name="scan_for" id="scan_for" style="color: grey;" required/>
                                             <option selected disabled/>Scan For...</option>
                                             <option value="folder">Directory</option>
@@ -2348,7 +1981,7 @@
                                             <option value="ff">Both</option>
                                         </select>
                                             <div class="input-group-append">
-                                            <button id="submitFileScan" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitFileScan" class="btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-search"></i>
                                             </button>
                                         </div>
@@ -2423,20 +2056,9 @@
 
                                 <form id="file-mgr-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" onkeyup="autoCompleteSelectFolder('.scan_dir_mgr_autocomplete', '#directory-list-autocomplete', 'text', 'directory');" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= isset($_GET['dir']) && trim($_GET['dir']) !=='' ? trim($_GET['dir']) : $webTools->dirLoc; ?>" class="form-control scan_dir_mgr_autocomplete bg-transparent text-white" required/>
-                                        <div class="item-list-custom" id="directory-list-autocomplete">
-                                            <div class="text-right close-btn-list-dir">
-                                                <span onclick="hideElem('#directory-list-autocomplete');">
-                                                    <i class="fa-solid fa-xmark text-white"></i>
-                                                </span>
-                                            </div>
-                                            <div class="item-list-group overflow-active">
-                                                <div>Loading...</div>
-                                            </div>
-                                        </div>
-
+                                        <input type="text" class="form-control" name="scan_dir_mgr" id="scan_dir_mgr" placeholder="Directory Location..." value="<?= $webTools->dirLoc; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
                                         <div class="input-group-append">
-                                            <button id="submitFileMgr" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitFileMgr" class="btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
                                             </button>
                                         </div>
@@ -2731,20 +2353,9 @@
 
                                 <form id="text-editor-input" action="" method="post">
                                     <div class="input-group mb-3 bg-transparent">
-                                        <input type="text" onkeyup="autoCompleteSelectFolder('.texteditor_dir_autocomplete', '#directory-list-autocomplete', 'text', 'both');" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="texteditor_dir_autocomplete form-control bg-transparent text-white" required/>
-                                        <div class="item-list-custom" id="directory-list-autocomplete">
-                                            <div class="text-right close-btn-list-dir">
-                                                <span onclick="hideElem('#directory-list-autocomplete');">
-                                                    <i class="fa-solid fa-xmark text-white"></i>
-                                                </span>
-                                            </div>
-                                            <div class="item-list-group overflow-active">
-                                                <div>Loading...</div>
-                                            </div>
-                                        </div>
-
+                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
                                         <div class="input-group-append">
-                                            <button id="submitTextEditor" class="text-white btn btn-outline-secondary bg-transparent" type="submit">
+                                            <button id="submitTextEditor" class="btn btn-outline-secondary bg-transparent" type="submit">
                                                 <i class="fa-solid fa-arrow-right"></i>
                                             </button>
                                         </div>
@@ -2778,315 +2389,49 @@
                     <div class="col-md-12">
                         <div class="card elem-content bg-prim text-white">
                             <div class="card-header">
-                                <div class="input-group mb-3 bg-transparent">
-
-                                    <input type="text" class="form-control" onkeyup="autoCompleteSelectFolder('#dir_for_scan_malware', '#directory-list-autocomplete', 'text', 'directory');" name="dir_for_scan_malware" id="dir_for_scan_malware" placeholder="Directory Location..." value="<?= isset($_GET['directory_location']) && trim($_GET['directory_location']) !== '' ? trim($_GET['directory_location']): '.'. DIRECTORY_SEPARATOR; ?>" class="bg-transparent text-white" required/>
-                                    <div class="item-list-custom" id="directory-list-autocomplete">
-                                        <div class="text-right close-btn-list-dir">
-                                            <span onclick="hideElem('#directory-list-autocomplete');">
-                                                <i class="fa-solid fa-xmark text-white"></i>
-                                            </span>
-                                        </div>
-                                        <div class="item-list-group overflow-active">
-                                            <div>Loading...</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <input type="text" class="form-control" name="scan_regex_search" id="scan_regex_search" value=".php;.phtml;.php3;.php4;.php5;.phps;.htaccess" placeholder="Scan Search. Ex: .php;.css;filename" class="bg-transparent text-white" required/>
-
-                                    <input type="number" class="form-control" name="scan_limit_size" id="scan_limit_size" value="800000" placeholder="Default: 800KB. Scan limit size Bytes..." class="bg-transparent text-white" required/>
-                                    
-                                    <select class="form-control" name="scan_level" id="scan_level" required/>
-                                        <option value="5">Default Level 5 Scan</option>
-                                        <option value="1">Level 1</option>
-                                        <option value="2">Level 2</option>
-                                        <option value="3">Level 3</option>
-                                        <option value="4">Level 4</option>
-                                        <option value="5">Level 5</option>
-                                        <option value="6">Level 6</option>
-                                        <option value="7">Level 7</option>
-                                    </select>
-
-                                    <select class="form-control" name="show_detail" id="show_detail" style="color: grey;" required/>
-                                        <option value="none">Hide Details</option>
-                                        <option value="block">Show Details</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <style>
-                                    
-                                </style>
+                                
                                 <div class="row">
-                                    <div class="col-md-4 my-auto mx-auto">
-                                        <div id="malwareParamStart" class="d-none">0</div>
-                                        <div class="scan-item-circle mx-auto" onclick="malwareScanStart();">
-                                            <div>
-                                                <i id='loadingIconScan' class="fa-solid fa-shield-cat icon-scan-size"></i>
-                                            </div>
-                                            <div class="text-scan-header">
-                                                <strong id="text-scan-now">SCAN NOW</strong>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <strong class="text-scan-header">POTENTIAL MALWARE</strong>
-                                                        <div class="separator-sec"></div>
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <div class="indicator-color indicator-color-one"></div> 0-30
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <div class="indicator-color indicator-color-two"></div>31-79
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <div class="indicator-color indicator-color-three"></div>80-85
-                                                    </div>
-                                                    <div class="col-3">
-                                                        <div class="indicator-color indicator-color-five"></div>86-100
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <div class="separator-sec"></div>
-                                                    </div>
-                                                </div>
+                                    <div class="col-md-3">
 
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <strong class="text-scan-header">LEVEL SCAN</strong>
-                                                        <div class="separator-sec"></div>
-                                                        <div class="row">
-                                                            <div class="col-12 pt-2 pb-2">
-                                                                <div class="indicator-color indicator-color-one"></div> 
-                                                                Level 1 Scan : Normal
-                                                            </div>
-                                                            <div class="col-12 pt-2 pb-2">
-                                                                <div class="indicator-color indicator-color-two"></div> 
-                                                                Level 2 Scan : Normal - Warning
-                                                            </div>
-                                                            <div class="col-12 pt-2 pb-2">
-                                                                <div class="indicator-color indicator-color-three"></div> 
-                                                                Level 3 Scan : Warning
-                                                            </div>
-                                                            <div class="col-12 pt-2 pb-2">
-                                                                <div class="indicator-color indicator-color-four"></div> 
-                                                                Level 4 Scan : Warning - Risk
-                                                            </div>
-                                                            <div class="col-12 pt-2 pb-2">
-                                                                <div class="indicator-color indicator-color-five"></div> 
-                                                                Level 5 Scan : Risk
-                                                            </div>
-                                                            <div class="col-12 pt-2 pb-2">
-                                                                <div class="indicator-color indicator-color-six"></div> 
-                                                                Level 6 Scan : Normal - Warning - Risk
-                                                            </div>
-                                                            <div class="col-12 pt-2 pb-2">
-                                                                <div class="indicator-color indicator-color-seven"></div> 
-                                                                Level 7 Scan : Normal - Risk
-                                                            </div>
-                                                        </div>
-                                                        
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="row">
-                                                            <div class="col-10">
-                                                                <strong class="text-scan-header">RECENT SCAN RESULTS</strong>
-                                                            </div>
-                                                            <div class="col-2 text-right">
-                                                            <i onclick="malwareScanLog();" class="fa-solid fa-arrows-rotate text-white"></i>
-                                                            </div>
-                                                        </div>
-                        
-                                                        <div class="separator-sec"></div>
-                                                        <div class="scan-info-box scroll-active">
-                                                            <div class="item-scan-logs"></div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </div>
+                                    <div class="col-md-9 text-right">
+                                        <button type="button" id="refreshTextEditor" onclick="autoStartTextEditor();" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-arrows-rotate"></i>
+                                        </button>
+                                        <button type="button" id="clearTextEditor" onclick="removeLogTextEditor('#text-editor-log');" class="btn bg-primary text-white">
+                                            Clear Log Action
+                                        </button>
+                                        <button type="button" id="saveTextEditor" onclick="saveTextEditor();" class="btn bg-primary text-white">
+                                            <i class="fa-solid fa-floppy-disk"></i> Save
+                                        </button>
                                     </div>
                                 </div>
+
+                                <div class="separator-sec"></div>
+
+                                <form id="text-editor-input" action="" method="post">
+                                    <div class="input-group mb-3 bg-transparent">
+                                        <input type="text" class="form-control" name="file_loc" id="file_loc" placeholder="File Location..." value="<?= isset($_GET['file']) && trim($_GET['file']) !== '' ? trim($_GET['file']): ''; ?>" class="bg-transparent text-white" style="color: white !important;" required/>
+                                        <div class="input-group-append">
+                                            <button id="submitTextEditor" class="btn btn-outline-secondary bg-transparent" type="submit">
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                            <div class="card-footer box-malware-scan fixed-full-height scroll-active">
-                                <div id="malware-scan-log">No Action.</div>
+                            <div class="card-body box-text-editor min-max-height scroll-active">
+                                <div id="text-editor-log">No Action.</div>
+                                <div class="separator-sec"></div>
                             </div>
+                            <div class="card-footer">
+                            
+                        </div>
                         </div>
                     </div>
                 </div>
 
                 <?php } else{ /*something*/ } ?>
-
-                <span class="set-theme" onclick="openPopup('#set-theme-popup');">
-                    <i class="fa-solid fa-sun"></i>
-                </span>
-                
-                <div class="box-popup" id="set-theme-popup">
-                    <div class="row">
-                        <div class="col-md-4"></div>
-                        <div class="col-md-4">
-                            <div class="card card-default bg-prim bordered">
-                                <div class="card-header">
-                                    <div class="row">
-                                        <div class="col-10">
-                                            <h4>THEMES</h4>
-                                        </div>
-                                        <div class="col-2">
-                                            <h4>
-                                                <button class="close bg-prim text-white" onclick="closePopup('#set-theme-popup');">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                </button>
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="list-item-theme">
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-white"></span>
-                                                    Set White Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('white');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-black"></span>
-                                                    Set Black Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('black');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div> 
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-pale-night"></span>
-                                                    Set Pale Night Contrast Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('palenight');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-ocean-high"></span>
-                                                    Set Ocean High Contrast Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('oceanhigh');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-material-high"></span>
-                                                    Set Material High Contrast Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('materialhigh');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-night-blue"></span>
-                                                    Set Night Blue Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('nightblue');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-solaris-dark"></span>
-                                                    Set Solaris Dark Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('solarisdark');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-color-abyss"></span>
-                                                    Set Abyss Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('abyss');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-kimbie-dark"></span>
-                                                    Set Kimbie Dark Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('kimbiedark');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="item-theme">
-                                            <div class="row">
-                                                <div class="col-md-8 text-white">
-                                                    <span class="box-theme-color box-theme-red"></span>
-                                                    Set Red Theme
-                                                </div>
-                                                <div class="col-md-4 text-right">
-                                                    <button class="btn btn-sm text-white bg-sec" onclick="setTheme('red');">
-                                                        Set
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4"></div>
-                    </div>
-                </div>
-
-
-
             </div>
             <!-- end body content -->
         </div>
@@ -3118,97 +2463,6 @@
 
 <script>
 
-    function setTheme(themeSet = null){
-        // var sheet = document.styleSheets[0];
-
-        var cssSetWhite  = ":root{--primary-color: white; --secondary-color: #d8d8d8; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: black; --button-color: white;} .text-white{color: var(--color-theme) !important;} .form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--color-theme) !important; }  button {color: var(--button-color) !important; } .text-label {color: var(--color-theme);} option {color: var(--color-theme);} a {color: var(--color-theme) !important; }";
-
-        var cssSetPaleNight  = ":root{--primary-color: #1B1E2B; --secondary-color: #292D3E; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetOceanHigh  = ":root{--primary-color: #090B10; --secondary-color: #0F111A; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetMaterialHight  = ":root{--primary-color: #192227; --secondary-color: #263238; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetBlack  = ":root{--primary-color: #000000; --secondary-color: #222222; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetNightBlue  = ":root{--primary-color: #001C40; --secondary-color: #002451; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetSolarisDark = ":root{--primary-color: #00212B; --secondary-color: #002B36; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetAbyss = ":root{--primary-color: #060621; --secondary-color: #000C18; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetRed = ":root{--primary-color: #330000; --secondary-color: #390000; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-
-        var cssSetKimbieDark = ":root{--primary-color: #362712; --secondary-color: #221A0F; --body-text-header-font-size: 16px; --body-text-content-font-size: 14px; --color-theme: white; --button-color: white;} .text-white{color: var(--color-theme) !important;}.form-control{color: var(--color-theme) !important; border: 1px solid var(--color-theme);} input {color: var(--color-theme) !important; } button {color: var(--button-color) !important; } .text-label {color: var(--color-theme); } option {color: grey;} a {color: var(--color-theme) !important; }";
-        
-        
-        if (themeSet == 'white') {
-            var cssSet = cssSetWhite;
-        } else if (themeSet == 'palenight') {
-            var cssSet = cssSetPaleNight;
-        } else if (themeSet == 'oceanhigh') {
-            var cssSet = cssSetOceanHigh;
-        } else if (themeSet == 'materialhigh') {
-            var cssSet = cssSetMaterialHight;
-        } else if (themeSet == 'black') {
-            var cssSet = cssSetBlack;
-        } else if (themeSet == 'nightblue') {
-            var cssSet = cssSetNightBlue;
-        } else if (themeSet == 'solarisdark') {
-            var cssSet = cssSetSolarisDark;
-        } else if (themeSet == 'abyss') {
-            var cssSet = cssSetAbyss;
-        } else if (themeSet == 'red') {
-            var cssSet = cssSetRed;
-        } else if (themeSet == 'kimbiedark') {
-            var cssSet = cssSetKimbieDark;
-        }
-
-        else {
-            var cssSet  = cssSetWhite;
-        }
-
-        // check if set by click theme
-        if (themeSet !== null) {
-            localStorage.setItem("theme_set", themeSet);
-        } else {
-            var getSetThemeSession = localStorage.getItem("theme_set", themeSet);
-            if (getSetThemeSession == 'white') {
-                var cssSet = cssSetWhite;
-            } else if (getSetThemeSession == 'palenight') {
-                var cssSet = cssSetPaleNight;
-            } else if (getSetThemeSession == 'oceanhigh') {
-                var cssSet = cssSetOceanHigh;
-            } else if (getSetThemeSession == 'materialhigh') {
-                var cssSet = cssSetMaterialHight;
-            } else if (getSetThemeSession == 'black') {
-                var cssSet = cssSetBlack;
-            }else if (getSetThemeSession == 'nightblue') {
-                var cssSet = cssSetNightBlue;
-            }else if (getSetThemeSession == 'solarisdark') {
-                var cssSet = cssSetSolarisDark;
-            } else if (getSetThemeSession == 'abyss') {
-                var cssSet = cssSetAbyss;
-            } else if (getSetThemeSession == 'red') {
-                var cssSet = cssSetRed;
-            } else if (getSetThemeSession == 'kimbiedark') {
-                var cssSet = cssSetKimbieDark;
-            }
-            
-            // ----- SOMETHING
-            
-            else {
-                var cssSet = cssSetPaleNight;
-            }
-        }
-
-        $('#styleMaster').append(cssSet);
-
-    }
-
-    // set started load page theme
-    setTheme();
-
     function copy_text(containerid) {
         var range = document.createRange();
         range.selectNode(containerid); //changed here
@@ -3219,6 +2473,21 @@
         alert('copied.');
     }
 
+    // function copy_text(containerid) {
+    //     if (document.selection) {
+    //         var range = document.body.createTextRange();
+    //         range.moveToElementText(document.getElementById(containerid));
+    //         range.select().createTextRange();
+    //         document.execCommand("copy");
+    //     } else if (window.getSelection) {
+    //         var range = document.createRange();
+    //         range.selectNode(document.getElementById(containerid));
+    //         window.getSelection().addRange(range);
+    //         document.execCommand("copy");
+    //         alert("Text has been copied.");
+    //     }
+    // }
+
     // popup
     function openPopup(popup = null){
         $(popup).fadeIn("slow");
@@ -3226,46 +2495,6 @@
 
     function closePopup(popup = null){
         $(popup).fadeOut("slow");
-    }
-
-    function showElem(elemId = null){
-        $(elemId).show();
-    }
-
-    function hideElem(elemId = null){
-        $(elemId).hide();
-    }
-
-    function showHideElem(elemId = null){
-        if(document.querySelector(elemId).style.display == 'none'){
-            document.querySelector(elemId).style.display = 'block';
-        }else{
-            document.querySelector(elemId).style.display = 'none';
-        }
-    }
-
-    function showHideElemAll(className = null, elemAfterEffect = null){
-
-        var elements = document.getElementsByClassName(className)
-
-        for (var i = 0; i < elements.length; i++){
-            if(elements[i].style.display == 'none'){
-                elements[i].style.display = 'block';
-            }else{
-                elements[i].style.display= 'none';
-            }
-        }
-
-        // set after effects
-        if (elemAfterEffect !== null) {
-            if(document.querySelector(elemAfterEffect).style.borderStyle == 'solid'){
-                document.querySelector(elemAfterEffect).style.borderStyle ="double";
-                document.querySelector(elemAfterEffect).style.borderWidth ="4px";
-            }else{
-                document.querySelector(elemAfterEffect).style.borderStyle ="solid";
-                document.querySelector(elemAfterEffect).style.borderWidth ="2px";
-            }
-        }
     }
 
     function removeElem(elem = null){
@@ -3283,67 +2512,6 @@
             $(elemID).val('');
         }
     }
-
-    function setValue(elemSet = null, valueSet = null){
-        if (elemSet == null || valueSet == null) {
-            return null;
-        } else {
-            valueSet = atob(valueSet);
-            $(elemSet).val(valueSet);
-        }
-    }
-
-    function setValueDirAutoComplete(selectElem = null, listItemElem = null, typeInput = null, typeGetItemList = null, elemSet = null, valueSet = null){
-        if (elemSet == null || valueSet == null) {
-            return null;
-        } else {
-            valueSet = atob(valueSet);
-            $(elemSet).val(valueSet);
-            autoCompleteSelectFolder(selectElem, listItemElem, typeInput, typeGetItemList);
-        }
-    }
-
-    // Autocomplete selection folder
-    function autoCompleteSelectFolder(selectElem = null, listItemElem = null, typeInput = null, typeGetItemList = null){
-
-        const elemListSet = document.querySelector(listItemElem);
-        elemListSet.style.display = 'block';
-
-        // get-dir-item-list -> link request
-        // get_item_type   -> get
-        // set_directory_list -> post
-
-        var elemShowItems = listItemElem + ' .item-list-group';
-        var set_directory_list = $(selectElem).val(); 
-        var get_item_type = typeGetItemList;
-
-        //$(selectElem).attr("disabled", true);
-
-        $(elemShowItems).html('<div class="box-msg"><div class="loadingItemsGet"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></div>');
-
-        $.ajax({
-            type: 'POST',
-            url: "<?= $webTools->baseLink; ?>?page=get-dir-item-list&get_item_type=" + get_item_type,
-            dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
-            cache: false, 
-            data: {
-                set_directory_list: set_directory_list,
-                select_elem: selectElem
-            },
-            success: function(data){
-                removeElem('.loadingItemsGet');
-                //$(selectElem).attr("disabled", false);
-                $(elemShowItems).html(data); 
-            },
-            error: function (e) {
-                removeElem('.loadingItemsGet');
-                //$(selectElem).attr("disabled", false);
-                $(elemShowItems).html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
-            }
-        });
-    }
-    
 
     function clearLogTerminal(elemId = null){
         removeElem(elemId);
@@ -3364,7 +2532,6 @@
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=terminal-execute",
             dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
             cache: false, 
             data: {
                 command: command,
@@ -3402,7 +2569,9 @@
         var scanDir = $('#scan_dir').val(); 
         var scanFor = $('#scan_for').val(); 
         var scanPayload = $('#scan_payload').val(); 
-    
+        
+
+        
         $('#submitFileScan').attr("disabled", true);
 
         $('#file-scan-log').prepend('<div class="box-msg d-block"><center><div class="loadingLogFileScan"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Loading...</div></center></div>');
@@ -3411,7 +2580,6 @@
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=scanning-file",
             dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
             cache: false, 
             data: {
                 scan_dir: scanDir,
@@ -3459,7 +2627,6 @@
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=file-manager-load",
             dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
             cache: false, 
             data: {
                 scan_dir_mgr: scanDirMgr
@@ -3827,7 +2994,6 @@
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=zipper",
             dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
             cache: false, 
             data: {
                 delete_item: delItem
@@ -3862,7 +3028,6 @@
                 type: 'POST',
                 url: "<?= $webTools->baseLink; ?>?page=ff-delete",
                 dataType: 'html',
-                contentType: 'application/x-www-form-urlencoded',
                 cache: false, 
                 data: {
                     delete_item: delItem
@@ -3903,7 +3068,6 @@
                 type: 'POST',
                 url: "<?= $webTools->baseLink; ?>?page=file-manager-load",
                 dataType: 'html',
-                contentType: 'application/x-www-form-urlencoded',
                 cache: false, 
                 data: {
                     scan_dir_mgr: scan_dir_mgr
@@ -3931,180 +3095,6 @@
 
     });
 
-    <?php } elseif($webTools->pageActive() == 'malware-perm-scan'){ ?>
-
-    function malwareScanLog(){
-
-        $('.item-scan-logs').html('<div class="box-msg d-block"><center><div class="loadingLogMalwareScan"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Getting Logs...</div></center></div>');
-        
-        $.ajax({
-            type: 'POST',
-            url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-log",
-            dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
-            cache: false, 
-            data: {},
-            success: function(data){
-                removeElem('.loadingLogMalwareScan');
-                $('.item-scan-logs').html(data);
-            },
-            error: function (e) {
-                removeElem('.loadingLogMalwareScan');
-                $('.item-scan-logs').html('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
-
-            }
-        });
-    }
-
-    malwareScanLog();
-
-    function malwareScanStart(fileLog = null, urlSet = null){
-
-        var dir_for_scan_malware = $('#dir_for_scan_malware').val();
-        var scan_level = $('#scan_level').val();
-        var scan_regex_search = $('#scan_regex_search').val();
-        var scan_limit_size = $('#scan_limit_size').val();
-        var malwareParamStart = $('#malwareParamStart').html().trim();
-        var show_detail = $('#show_detail').val();
-        
-        
-        if (malwareParamStart == '0') {
-
-            $('.scan-item-circle').removeClass('scan-item-circle-complete');
-            $('.scan-item-circle').addClass('scan-item-circle-anim');
-            $('#loadingIconScan').addClass('anim-rotate');
-            $('#text-scan-now').html('SCANNING...');
-
-            $('#malwareParamStart').html('1');
-
-            $('#malware-scan-log').html('<div class="box-msg d-block"><center><div class="loadingLogMalware"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Getting Results...</div></center></div>');
-            
-            // disable input
-            $('#dir_for_scan_malware').attr("disabled", true);
-            $('#scan_level').attr("disabled", true);
-            $('#scan_limit_size').attr("disabled", true);
-            $('#scan_regex_search').attr("disabled", true);
-            $('#show_detail').attr("disabled", true);
-
-            // check if scan or open log
-            if (fileLog !== null && urlSet !== null) {
-                var urlSetReq  = 'open-log';
-                var setFileLog = atob(fileLog.trim());
-            } else {
-                var urlSetReq  = 'scan';
-                var setFileLog = '';
-            }
-            
-            $.ajax({
-                type: 'POST',
-                url: "<?= $webTools->baseLink; ?>?page=malware-perm-scan-proc&action=" + urlSetReq,
-                dataType: 'html',
-                contentType: 'application/x-www-form-urlencoded',
-                cache: false, 
-                data: {
-                    dir_for_scan_malware: dir_for_scan_malware,
-                    scan_level: scan_level,
-                    scan_regex_search: scan_regex_search,
-                    scan_limit_size: scan_limit_size,
-                    show_detail: show_detail,
-                    set_file_log: setFileLog
-                },
-                success: function(data){
-                    // disable input
-                    $('#dir_for_scan_malware').attr("disabled", false);
-                    $('#scan_level').attr("disabled", false);
-                    $('#scan_limit_size').attr("disabled", false);
-                    $('#scan_regex_search').attr("disabled", false);
-                    $('#show_detail').attr("disabled", false);
-
-                    removeElem('.loadingLogMalware');
-                    $('#malwareParamStart').html('0');
-
-                    $('.scan-item-circle').addClass('scan-item-circle-complete');
-                    $('.scan-item-circle').removeClass('scan-item-circle-anim');
-                    $('#loadingIconScan').removeClass('anim-rotate');
-                    $('#text-scan-now').html('SCAN COMPLETE');
-                    $('#malware-scan-log').html(data);
-
-                    setTimeout(() => {
-                        $('#text-scan-now').html('SCAN AGAIN?');
-                    }, 1000);
-
-                    malwareScanLog();
-
-                },
-                error: function (e) {
-                    // disable input
-                    $('#dir_for_scan_malware').attr("disabled", false);
-                    $('#scan_level').attr("disabled", false);
-                    $('#scan_limit_size').attr("disabled", false);
-                    $('#scan_regex_search').attr("disabled", false);
-                    $('#show_detail').attr("disabled", false);
-
-                    removeElem('.loadingLogMalware');
-                    $('#malwareParamStart').html('0');
-
-                    $('.scan-item-circle').removeClass('scan-item-circle-anim');
-                    $('#loadingIconScan').removeClass('anim-rotate');
-                    $('#text-scan-now').html('SCAN COMPLETE');
-                    $('.scan-item-circle').addClass('scan-item-circle-complete');
-
-                    setTimeout(() => {
-                        $('#text-scan-now').html('SCAN AGAIN?');
-                    }, 1000);
-
-                    malwareScanLog();
-
-                }
-            });
-        } else {
-            $('#text-scan-now').html('ON PROGRESS');
-            setTimeout(() => {
-                $('#text-scan-now').html('SCANNING...');
-            }, 1500);
-        }
-    }
-
-    function delete_file_malware_scan(ListMgrDel = null, delItem = null){
-        var confirmDel = confirm('are you sure you want to delete this item ['+atob(delItem)+'] ? If true, the item will be permanently deleted.');
-        if(confirmDel){
-
-            delItem = atob(delItem);
-            $(ListMgrDel).prepend('<div class="box-msg d-block"><center><div class="loadingLogFileMgrAct"><img src="<?= $webTools->loadImage ?>" width="20px" height="20px" /> Deleting ['+ delItem +'], Removing file...</div></center></div>');
-
-            $.ajax({
-                type: 'POST',
-                url: "<?= $webTools->baseLink; ?>?page=ff-delete",
-                dataType: 'html',
-                contentType: 'application/x-www-form-urlencoded',
-                cache: false, 
-                data: {
-                    delete_item: delItem
-                },
-                success: function(data){
-                    //removeLogFileMgr('#file-mgr-log-act');
-                    removeElem('.loadingLogFileMgrAct');
-                    $('#submitFileMgrAct').attr("disabled", false);
-                    $(ListMgrDel).prepend('<div class="box-msg">'+ data +'</div>'); 
-                    setLoadFileMgr();
-                
-                },
-                error: function (e) {
-                    //removeLogFileMgr('#file-mgr-log-act');
-                    removeElem('.loadingLogFileMgrAct');
-                    $('#submitFileMgrAct').attr("disabled", false);
-                    $(ListMgrDel).prepend('<div class="box-msg">Failed. Error Message: '+ e +'</div>'); 
-                    setLoadFileMgr();
-                }
-            });
-
-        }else{
-            // something statement
-            return false;
-        }
-
-    }
-
     <?php } elseif($webTools->pageActive() == 'text-editor'){ ?>
 
     // setLoadTextEditor
@@ -4129,7 +3119,6 @@
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=open",
             dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
             cache: false, 
             data: {
                 file_loc: fileLoc,
@@ -4172,7 +3161,6 @@
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=save",
             dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
             cache: false, 
             data: {
                 file_loc: fileLoc,
@@ -4214,7 +3202,6 @@
             type: 'POST',
             url: "<?= $webTools->baseLink; ?>?page=text-editor-act&action=open",
             dataType: 'html',
-            contentType: 'application/x-www-form-urlencoded',
             cache: false, 
             data: {
                 file_loc: fileLoc,
@@ -4330,7 +3317,6 @@
         .form-control {
             background: rgba(0, 0, 0, .0) !important;
             border-color: #6c757d !important;
-            color: white !important;
         }
 
         /* scrollbar */
@@ -4413,7 +3399,7 @@
     // check input login
     $pass_formlogin = isset($_POST['password_login']) ? $_POST['password_login'] : null;
     if ($webTools->login_auth($pass_formlogin)) {
-        // login true
+        
         $webTools->redirect($webTools->baseLink);
 
     } else {
@@ -4496,33 +3482,17 @@
                         if ($value['type'] == 'folder') {
                             echo '
                             <div class="row">
-                                <div class="col-md-12 mt-1 mb-1"><strong>Type: '. $value['type'] .'</strong> | 
-                                    <span onclick=\'setValueTo("#scan_dir", "'. base64_encode($value['item']) .'");\' class="badge badge-primary text-white set-scan-file">Set Search</span>
-                                     | 
-                                    <a href="'. $webTools->baseLink .'?page=malware-perm-scan&directory_location='. trim($value['item']) .'" target="_blank">
-                                        <span class="badge badge-default bg-sec">Scan</span>
-                                    </a>
-                                     | 
-                                    <a href="'. $webTools->baseLink .'?page=file-manager&dir='. trim($value['item']) .'" target="_blank">
-                                        <span class="badge badge-info">Open in File Manager</span>
-                                    </a>
-                                </div>
+                                <div class="col-md-12 mt-1 mb-1"><strong>Type: '. $value['type'] .'</strong> | <span onclick=\'setValueTo("#scan_dir", "'. base64_encode($value['item']) .'");\' class="badge badge-primary text-white set-scan-file">Set Search</span></div>
                             </div>
                             ';
                         }else{
                             echo '
                             <div class="row">
-                                <div class="col-md-12 mt-1 mb-1">
-                                    <strong>Type: '. $value['type'] .'</strong> | 
-                                    <a href="'. $webTools->baseLink .'?page=download&file='. $value['item'] .'"><span class="badge badge-success text-white set-scan-file">Download</span></a>
-                                     | 
-                                    <a href="'. $webTools->baseLink .'?page=text-editor&file='. trim($value['item']) .'" target="_blank">
-                                        <span class="badge badge-primary">Open</span>
-                                    </a>
-                                </div>
+                                <div class="col-md-12 mt-1 mb-1"><strong>Type: '. $value['type'] .'</strong> | <a href="'. $webTools->baseLink .'?page=download&file='. $value['item'] .'"><span class="badge badge-success text-white set-scan-file">Download</span></a></div>
                             </div>
                             ';
                         }
+                        
                         echo '</div>';
                         $nox++;
                     }
@@ -4608,12 +3578,7 @@
                                 ';
                             }
 
-                            echo'
-                            <a href="'. $webTools->baseLink .'?page=malware-perm-scan&directory_location='. trim($valueItem['item_path']) .'" target="_blank">
-                                <span class="badge badge-default bg-sec">Scan</span>
-                            </a>
-                             | 
-                             <span class="badge badge-info" onclick="copy_text(item_name_'. $xCounter .');">Copy Path</span> 
+                            echo'<span class="badge badge-info" onclick="copy_text(item_name_'. $xCounter .');">Copy Path</span>
                             </div>
                             ';
 
@@ -4655,7 +3620,8 @@
                                      </a>
                                      | 
                                     <span class="badge badge-danger" onclick="delete_file_mgr(\'#list-item-mgr_'. $xCounter .'\', \''. base64_encode($valueItem['item_path']) .'\');">Delete</span>
-                                     | 
+                                    
+                                    | 
                                     <a href="./'. $valueItem['item_path'] .'" target="_blank">
                                         <span class="badge badge-warning">Show</span>
                                     </a>
@@ -4939,372 +3905,12 @@
 
                 echo "</div>";
 
-            } elseif($pageShow == 'malware-perm-scan-proc'){
-
-                $dir_for_scan_malware  = trim($_POST['dir_for_scan_malware']);
-                $scan_level  = trim($_POST['scan_level']);
-                $scan_regex_search = trim($_POST['scan_regex_search']);
-                $scan_limit_size = trim($_POST['scan_limit_size']);
-                $showDetail = trim($_POST['show_detail']);
-                $set_file_log = trim($_POST['set_file_log']);
-                $checkReqLog = isset($_GET['action']) && trim($_GET['action']) !== 'scan' ? true: false;
+            } elseif($pageShow == 'malware-scan-proc'){
+                $a = $webTools->malwareScan('C:\laragon\www\games', '.php', null, 6, null);
                 
-                
+                print_r($a);
 
-                $timeSetID = date('H:i d-m-Y') ." - ". time();
-                $forSetFileLog = date('H.i_d-m-Y') ."-". time();
-
-                $setView = '';
-                $setTopview = '';
-                $viewTimeScan = '';
-
-                /* 
-                #Scan results json parameter
-                => array
-                [last_scan] => 15:53 28-05-2022
-                [time_start] => 1653728002
-                [scan_item] => Array
-                    [file_path] => .\webtools.php
-                    [item_result] => Array
-                        [level] => risk
-                        [name] => shell
-                        [desc] => if File .php have a this string, potential a malware
-                        [pos] => 2131
-                        [short_script] => shell_exec_available(){if(in_array(strtolower(ini_get('safe_mode')),ar
-                [time_end] => 1653728002
-                [total_time_execute] => 0
-                */
-
-                if (!$checkReqLog) {
-                    $getResultScan = $webTools->malwareScan($dir_for_scan_malware, $scan_regex_search, $scan_limit_size, $scan_level, null);
-                    $viewTimeScan .= "<div class='badge badge-warning badge-custom-notice-term'>[Scan $dir_for_scan_malware][Lvl $scan_level] Last Scan ". $timeSetID ."</div>";
-                } else {
-                    $getResultScan = @file_get_contents($set_file_log);
-                    $getResultScan = json_decode($getResultScan, true);
-                    $viewTimeScan .= "<div class='badge badge-primary badge-custom-notice-term'>[Open Log Scan ". $getResultScan['scan_path'] ."][Lvl $scan_level] Last Scan ". $getResultScan['last_scan'] ."</div>";
-                }
-
-                $countTotalFiles = 0;
-                $countPotMalware1 = 0;
-                $countPotMalware2 = 0;
-                $countPotMalware3 = 0;
-                $countPotMalware4 = 0;
-
-                if ($getResultScan && is_array($getResultScan) && count($getResultScan) > 0) {
-
-                    if (!$checkReqLog) {
-                        // create a file log json format
-                        if (is_dir($autoCreateScan)) {
-                            $setFilePathLog = $autoCreateScan . DIRECTORY_SEPARATOR . $forSetFileLog . $webTools->formatLog;
-                            //create file log
-                            //$utf8_arr_encoded = utf8_encode($getResultScan);
-                            $jsonSetLog = json_encode($getResultScan, JSON_ERROR_DEPTH);
-                            if ($jsonSetLog) {
-                                $webTools->createFile($setFilePathLog, 'w', $jsonSetLog);
-                            } else {
-                                $setView .= "<div><div class='badge badge-danger text-white'>Cant Make a Log File. Error parsing to json encoded.</div></div>";
-
-                            }
-                            
-                        }
-                    }
-
-                    $setView .= '
-                    <div class="row">
-                        <div class="col-md-12">
-                            <strong class="text-label">DETAIL ITEMS</strong>
-                            <div class="separator-sec"></div>
-                        </div>
-                    </div>
-                    ';
-
-                    $xCounter = 1;
-
-                    foreach ($getResultScan['scan_item'] as $keyItemResults => $valueItemResults) {
-                        
-                        
-                        /* 
-                            # results array params
-                            [item_result] => Array
-                            [level] => risk
-                            [name] => shell
-                            [desc] => if File .php have a this string, potential a malware
-                            [pos] => 2131
-                            [short_script] => shell_exec_available(){if(in_array( 
-                        */
-
-                        $setViewSub = ''; 
-
-                        if (is_array($valueItemResults['item_result']) && count($getResultScan['scan_item']) > 0) {
-
-                            $potential_malware = 0;
-                            
-                            foreach ($valueItemResults['item_result'] as $keyItemScan => $valueItemScan) {
-
-                                $potential_malware_scan = $valueItemScan['malware_potential'];
-
-                                $potential_malware = $potential_malware_scan > $potential_malware ? $potential_malware_scan : $potential_malware;
-
-                                $setColorBg  = $valueItemScan['level']  == 'risk' ? 'danger' : 
-                                    ($valueItemScan['level']  == 'warning' ? 'warning' : 'success');
-
-                                $setViewSub .= '<div class="list-item-scan" style="border-left: 2px dotted grey; border-top: 1px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px;">';           
-                                $setViewSub .= '
-                                <div>
-                                    <strong>Detect Script By: </strong>'. $valueItemScan['name'] .'
-                                </div>
-                                ';
-                                $setViewSub .= '
-                                <div>
-                                    <strong>Description: </strong>'. $valueItemScan['desc'] .'
-                                </div>
-                                ';
-                                $setViewSub .= '
-                                <div>
-                                    <strong>Short Script: </strong>'. htmlspecialchars($valueItemScan['short_script']) .'...
-                                </div>
-                                ';
-                                $setViewSub .= '
-                                <div>
-                                    <strong>Level: </strong> <div class="badge badge-'. $setColorBg .' text-white">'. $valueItemScan['level'] .'</div>
-                                </div>
-                                ';
-
-                                $setViewSub .= '
-                                <div>
-                                    <strong>Permission: </strong>'. $valueItemScan['permission'] .'
-                                </div>
-                                ';
-
-                                $setNoticePotMalwareItem  = $potential_malware <= 30 ? 'one' : 
-                                    ($potential_malware > 30 && $potential_malware <= 79 ? 'two' : 
-                                    ($potential_malware >= 80 && $potential_malware <= 85 ? 'three' : 'five'));
-
-                                $setNoticePotMalwareItem = '<div class="indicator-color indicator-color-'. $setNoticePotMalwareItem .'"></div> '. $potential_malware;
-
-                                $setViewSub .= '
-                                <div>
-                                    <strong>Potential Malware Score: </strong>'. $setNoticePotMalwareItem .'
-                                    <br><br>
-                                </div>
-                                ';
-                                
-                                $setViewSub .= "</div>";
-                            }
-                        }
-
-
-                        // set counter total item / potential
-                        if ($potential_malware <= 30) {
-                            $potScoreGrade = 'one';
-                            $countPotMalware1++;
-                        }
-                        if ($potential_malware > 30 && $potential_malware <= 79) {
-                            $potScoreGrade = 'two';
-                            $countPotMalware2++;
-                        }
-                        if ($potential_malware >= 80 && $potential_malware <= 85) {
-                            $potScoreGrade = 'three';
-                            $countPotMalware3++;
-                        }
-                        if ($potential_malware > 85) {
-                            $potScoreGrade = 'four';
-                            $countPotMalware4++;
-                        }
-
-
-                        $setView .= '
-                        <div class="list-item-scan-pot-'. $potScoreGrade .'">
-                        <div class="list-item-scan" style="border-top: 3px dotted #f4f4f4; border-left: 2px dotted grey; padding-left: 10px; padding-bottom: 8px; padding-top: 8px; font-size: 16px !important;" id="list-item-scan_'. $xCounter .'">';
-                        $setView .= '
-                        <div class="row">
-                            <div class="col-md-11">
-                                <div class="sec-action-scan">
-                                   <strong>'. $xCounter. ')</strong> '. $valueItemResults['file_path']. '
-                                </div>
-                            </div>
-                            <div class="col-md-1 text-right">
-                                <button class="btn btn-sm bg-sec" onclick=\'showHideElem("#sec_action_scan_'. $xCounter .'")\'>
-                                    <i class="fa-solid fa-chevron-down text-white"></i>
-                                </button>
-                            </div>
-                        </div>
-                        </div>
-
-                        <div style="display: '. $showDetail  .';" id="sec_action_scan_'. $xCounter .'">
-                        <div class="row">
-                            <div class="col-md-12 mb-2">
-                            <strong class="text-white">Action</strong>
-                            </div>
-                            <div class="col-md-12">
-                                <a href="'. $webTools->baseLink .'?page=download&file='. $valueItemResults['file_path'] .'" target="_blank">
-                                    <span class="badge badge-success">Download</span>
-                                </a>
-                                 | 
-                                <a href="'. $webTools->baseLink .'?page=text-editor&file='. $valueItemResults['file_path'] .'" target="_blank">
-                                    <span class="badge badge-primary">Open</span>
-                                </a>
-                                 | 
-                                <span class="badge badge-danger" onclick="delete_file_malware_scan(\'#list-item-scan-log_'. $xCounter .'\', \''. base64_encode($valueItemResults['file_path']) .'\');">Delete</span>
-                                 | 
-                                <a href="'. $webTools->baseLink .'?page=file-manager&dir='. dirname($valueItemResults['file_path']) .'" target="_blank">
-                                    <span class="badge badge-info">Open in File Manager</span>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 mb-2" id="list-item-scan-log_'. $xCounter .'">
-                            </div>
-                        </div>
-                        
-                            <div class="row">
-                                <div class="col-md-12">
-                        '. $setViewSub;
-
-                        // check potential malware infection for notice
-                        /* 
-                            one 0-30
-                            two 31-50
-                            three 51-85
-                            five 86-100
-                        */
-                        $setNoticePotMalware  = $potential_malware <= 30 ? 'one' : 
-                            ($potential_malware > 30 && $potential_malware <= 79 ? 'two' : 
-                                ($potential_malware >= 80 && $potential_malware <= 85 ? 'three' : 'five'));
-
-                        $setNoticeViewPotMalware = '<div class="indicator-color indicator-color-'. $setNoticePotMalware .'"></div> '. $potential_malware;
-
-                        $setView .='
-                        </div></div>
-                        </div><div style="padding-left: 10px; margin-bottom: 5px; margin-top: -10px; font-weight: 800;" class="">Potential Malware Score: '. $setNoticeViewPotMalware .'</div>';
-                        $setView .= "</div>";
-                        $setView .= "</div></div>";
-
-                        $xCounter++;
-                    }
-                } else {
-                    $setView .= "<div><div class='badge badge-danger text-white'>Results 0. or False.</div></div>";
-                }
-
-                $setTopview .= $viewTimeScan .' 
-                <div class="row wrapper-scan-bar-counter">
-                    <div class="col-md-12">
-                        <strong class="text-label">TOTAL MALWARE POTENTIAL</strong>
-                        <div>
-                            <small>Click box for show or hide detail items</small>
-                        </div>
-                        <div class="separator-sec"></div>
-                    </div>
-                    <div class="col-md-3 mx-auto my-auto">
-                        <div class="circle-item circle-item-grade-1 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-one", ".circle-item-grade-1");\'>
-                            <div>
-                                <div class="indicator-color indicator-color-one"></div> 0-30
-                                <br>
-                            </div>
-                            <div class="box-item-scan-counter-header">'. $countPotMalware1 .'</div>
-                            <strong>TOTAL ITEM</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mx-auto my-auto">
-                        <div class="circle-item circle-item-grade-2 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-two", ".circle-item-grade-2");\'>
-                            <div>
-                                <div class="indicator-color indicator-color-two"></div> 31-79
-                                <br>
-                            </div>
-                            <div class="box-item-scan-counter-header">'. $countPotMalware2 .'</div>
-                            <strong>TOTAL ITEM</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mx-auto my-auto">
-                        <div class="circle-item circle-item-grade-3 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-three", ".circle-item-grade-3");\'>
-                            <div>
-                                <div class="indicator-color indicator-color-three"></div> 80-85
-                                <br>
-                            </div>
-                            <div class="box-item-scan-counter-header">'. $countPotMalware3 .'</div>
-                            <strong>TOTAL ITEM</strong>
-                        </div>
-                    </div>
-                    <div class="col-md-3 mx-auto my-auto">
-                        <div class="circle-item circle-item-grade-4 box-item-scan-counter mx-auto my-auto" onclick=\'showHideElemAll("list-item-scan-pot-four", ".circle-item-grade-4");\'>
-                            <div>
-                                <div class="indicator-color indicator-color-five"></div> 86-100
-                                <br>
-                            </div>
-                            <div class="box-item-scan-counter-header">'. $countPotMalware4 .'</div>
-                            <strong>TOTAL ITEM</strong>
-                        </div>
-                    </div>
-                </div>
-                ';
-
-                echo $setTopview . $setView;
-            } elseif($pageShow == 'malware-perm-scan-log'){
-
-                if (is_dir($autoCreateScan)) {
-                    $getAllFiles = $webTools->fileScan($autoCreateScan, [$webTools->formatLog], 'file');
-                    
-                    if ($getAllFiles) {
-
-                        $xCounter = 1;
-                        foreach ($getAllFiles as $keyItem => $valueItem) {
-                            echo '<div class="list-item-scan" style="border-bottom: 2px dotted grey; padding-bottom: 8px; padding-top: 8px;">';
-
-                            echo '
-                            <div><strong>
-                            '. $xCounter .') </strong>'. basename($valueItem['item']) .'
-                                <div>
-                                <button class="btn bg-sec text-white btn-sm" onclick=\'malwareScanStart("'. base64_encode(trim($valueItem['item'])) .'", "open-log");\'>Open Log Scan</button>
-                                </div>
-                            </div>
-                            ';
-
-                            echo '</div>'; 
-                            $xCounter++;                      
-                        }
-                    } else {
-                        echo "<div><div class='badge badge-warning text-white'>Failed getting file logs in [$autoCreateScan]. File not Found. Scan Now for Getting Logs.</div></div>";
-                    }
-                } else {
-                    echo "<div><div class='badge badge-danger text-white'>Failed getting file logs in [$autoCreateScan]. Directory not found.</div></div>";
-                }
-            } elseif($pageShow == 'get-dir-item-list'){
-
-                $getItemType = trim($_GET['get_item_type']);
-                $setDirectory = trim($_POST['set_directory_list']);
-                $selectElem = trim($_POST['select_elem']);
-                
-                /* 
-                    RESPONSE
-                    'item_name'
-                    'item_type'
-                    'item_path'
-                    'item_mime'
-                    'item_time'
-                    'item_size
-                */
-                $reqGetItemDir = $webTools->listDir($setDirectory, $getItemType);
-                if ($reqGetItemDir) {
-                   foreach ($reqGetItemDir as $keyItem => $valItem) {
-                        echo '
-                        <div class="row set-item-list">
-                            <div class="col-10">
-                                <div onclick="setValueDirAutoComplete(\''. trim($selectElem) .'\', \'#directory-list-autocomplete\', \'text\', \''. trim($getItemType) .'\', \''. trim($selectElem) .'\', \''. base64_encode(trim($valItem['item_path'])) .'\');">
-                                    '. $valItem['item_name'] .'
-                                </div>
-                            </div>
-                            <div class="col-2">
-                                '. (trim($valItem['item_type']) == 'directory' ? 'Dir' : 'File') .'
-                            </div>
-                        </div>
-                        ';
-                   }
-                }else{
-                    echo "<div><div class='badge badge-danger text-white'>0 Results or Failed in [$setDirectory].</div></div>";
-                }
             }
-
-            #-------SOMETHING REQUEST ACTION
 
             else {
                 dashboardPage($webTools);
@@ -5314,4 +3920,5 @@
             loginPage($webTools);
         }
     }
+
 ?>
