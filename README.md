@@ -5,11 +5,11 @@ You can use the webtools.php file directly. All features can be accessed in one 
 Upload it to the destination server and you can now access it via your link path.
 
 
-Latest version now 1.5.3
+Latest version now 1.4 BETA
 
-Now, You can set theme.
+Now, You can set theme. (Pro)
 
-Default Password : @rootuser
+Default Password : root!
 
 Structure of File webtools.php
 <br />
@@ -29,6 +29,6 @@ Structure of File webtools.php
 |<br />
 
 
-the latest view of the current tools:
+the latest view of the current tools (Pro 1.5.1):
 
 ![alt text](https://raw.githubusercontent.com/fordevelopertools/webtools/main/webtools1.5.1.png)
